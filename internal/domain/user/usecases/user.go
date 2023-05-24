@@ -3,7 +3,7 @@ package usecases
 import (
 	"github.com/braejan/go-transactions-summary/internal/domain/user/entity"
 	"github.com/braejan/go-transactions-summary/internal/domain/user/repository"
-	"github.com/braejan/go-transactions-summary/internal/valueobject"
+	"github.com/braejan/go-transactions-summary/internal/valueobject/user"
 )
 
 // userUsecases struct implements the UserUsecases interface.
@@ -16,7 +16,7 @@ type userUsecases struct {
 func NewUserUsecases(userRepo repository.UserRepository) (usecases UserUsecases, err error) {
 
 	if userRepo == nil {
-		err = valueobject.ErrUserRepositoryIsNil
+		err = user.ErrUserRepositoryIsNil
 		return
 	}
 	usecases = &userUsecases{
@@ -40,12 +40,12 @@ func (u *userUsecases) GetByEmail(email string) (user *entity.User, err error) {
 // Create implements the UserUsecases interface method.
 func (u *userUsecases) Create(ID int64, name string, email string) (err error) {
 	_, err = u.userRepo.GetByID(ID)
-	if err == valueobject.ErrUserNotFound {
+	if err == user.ErrUserNotFound {
 		// The user is not created.
 		err = u.userRepo.Create(entity.NewUser(ID, name, email))
 	} else if err == nil {
 		// The user is already created.
-		err = valueobject.ErrUserAlreadyCreated
+		err = user.ErrUserAlreadyCreated
 		return
 	}
 	return
@@ -56,7 +56,7 @@ func (u *userUsecases) Update(ID int64, name string, email string) (err error) {
 	_, err = u.userRepo.GetByID(ID)
 	if err != nil {
 		// The user is not created.
-		err = valueobject.ErrUserNotFound
+		err = user.ErrUserNotFound
 		return
 	}
 	err = u.userRepo.Update(entity.NewUser(ID, name, email))

@@ -7,7 +7,7 @@ import (
 	"github.com/braejan/go-transactions-summary/internal/domain/user/entity"
 	"github.com/braejan/go-transactions-summary/internal/domain/user/repository/mock"
 	"github.com/braejan/go-transactions-summary/internal/domain/user/usecases"
-	"github.com/braejan/go-transactions-summary/internal/valueobject"
+	"github.com/braejan/go-transactions-summary/internal/valueobject/user"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +19,7 @@ func TestNewUserUsecasesWithouUserRepository(t *testing.T) {
 	_, err := usecases.NewUserUsecases(nil)
 	// Then get next errors
 	assert.NotNil(t, err)
-	assert.Equal(t, valueobject.ErrUserRepositoryIsNil, err)
+	assert.Equal(t, user.ErrUserRepositoryIsNil, err)
 }
 
 // TestNewUserUsecasesWithUserRepository tests the NewUserUsecases function
@@ -43,13 +43,13 @@ func TestGetByIDWithError(t *testing.T) {
 	// And a user ID
 	ID := int64(1)
 	// And a mocked error calling GetByID
-	mockedUserRepo.On("GetByID", ID).Return(nil, valueobject.ErrUserNotFound)
+	mockedUserRepo.On("GetByID", ID).Return(nil, user.ErrUserNotFound)
 	// When call GetByID with an invalid ID
-	user, err := userUsecases.GetByID(ID)
+	userTest, err := userUsecases.GetByID(ID)
 	// Then get next errors
 	assert.NotNil(t, err)
-	assert.Equal(t, valueobject.ErrUserNotFound, err)
-	assert.Nil(t, user)
+	assert.Equal(t, user.ErrUserNotFound, err)
+	assert.Nil(t, userTest)
 }
 
 // TestGetByIDSucess tests the GetByID method with success.
@@ -87,13 +87,13 @@ func TestGetByEmailWithError(t *testing.T) {
 	// And a user email
 	email := "john.doe@amazinemail.com"
 	// And a mocked error calling GetByEmail
-	mockedUserRepo.On("GetByEmail", email).Return(nil, valueobject.ErrUserNotFound)
+	mockedUserRepo.On("GetByEmail", email).Return(nil, user.ErrUserNotFound)
 	// When call GetByEmail with an invalid email
-	user, err := userUsecases.GetByEmail(email)
+	userTest, err := userUsecases.GetByEmail(email)
 	// Then get next errors
 	assert.NotNil(t, err)
-	assert.Equal(t, valueobject.ErrUserNotFound, err)
-	assert.Nil(t, user)
+	assert.Equal(t, user.ErrUserNotFound, err)
+	assert.Nil(t, userTest)
 }
 
 // TestGetByEmailSucess tests the GetByEmail method with success.
@@ -130,18 +130,18 @@ func TestCreateWithErrorGetByID(t *testing.T) {
 	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
 	// And a entity.User
 	ID := int64(1)
-	user := &entity.User{
+	userTest := &entity.User{
 		ID:    int64(1),
 		Name:  "John Doe",
 		Email: "john.doe@amazinemail.com",
 	}
 	// And a mocked entity.User response calling GetByID
-	mockedUserRepo.On("GetByID", ID).Return(user, nil)
+	mockedUserRepo.On("GetByID", ID).Return(userTest, nil)
 	// When call Create with an invalid user
 	err := userUsecases.Create(ID, "John Doe", "john.doe@amazinemail.com")
 	// Then get next errors
 	assert.NotNil(t, err)
-	assert.Equal(t, valueobject.ErrUserAlreadyCreated, err)
+	assert.Equal(t, user.ErrUserAlreadyCreated, err)
 }
 
 // TestCreateWithError tests the Create method with an error creating the user.
@@ -152,15 +152,15 @@ func TestCreateWithError(t *testing.T) {
 	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
 	// And a entity.User
 	ID := int64(1)
-	user := &entity.User{
+	userTest := &entity.User{
 		ID:    int64(1),
 		Name:  "John Doe",
 		Email: "john.doe@amazinemail.com",
 	}
 	// And a mocked entity.User response calling GetByID
-	mockedUserRepo.On("GetByID", ID).Return(nil, valueobject.ErrUserNotFound)
+	mockedUserRepo.On("GetByID", ID).Return(nil, user.ErrUserNotFound)
 	// And a mocked error calling Create
-	mockedUserRepo.On("Create", user).Return(errors.New("new mocked error"))
+	mockedUserRepo.On("Create", userTest).Return(errors.New("new mocked error"))
 	// When call Create with an invalid user
 	err := userUsecases.Create(ID, "John Doe", "john.doe@amazinemail.com")
 	// Then get next errors
@@ -176,15 +176,15 @@ func TestCreateSucess(t *testing.T) {
 	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
 	// And a entity.User
 	ID := int64(1)
-	user := &entity.User{
+	userTest := &entity.User{
 		ID:    int64(1),
 		Name:  "John Doe",
 		Email: "john.doe@amazinemail.com",
 	}
 	// And a mocked entity.User response calling GetByID
-	mockedUserRepo.On("GetByID", ID).Return(nil, valueobject.ErrUserNotFound)
+	mockedUserRepo.On("GetByID", ID).Return(nil, user.ErrUserNotFound)
 	// And a mocked entity.User response calling Create
-	mockedUserRepo.On("Create", user).Return(nil)
+	mockedUserRepo.On("Create", userTest).Return(nil)
 	// When call Create with a valid user
 	err := userUsecases.Create(ID, "John Doe", "john.doe@amazinemail.com")
 	// Then get no errors
@@ -199,12 +199,12 @@ func TestUpdateWithErrorGetByID(t *testing.T) {
 	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
 	ID := int64(1)
 	// And a mocked error response calling GetByID
-	mockedUserRepo.On("GetByID", ID).Return(nil, valueobject.ErrUserNotFound)
+	mockedUserRepo.On("GetByID", ID).Return(nil, user.ErrUserNotFound)
 	// When call Update with an invalid user
 	err := userUsecases.Update(ID, "John Doe", "john.doe@amazinemail.com")
 	// Then get next errors
 	assert.NotNil(t, err)
-	assert.Equal(t, valueobject.ErrUserNotFound, err)
+	assert.Equal(t, user.ErrUserNotFound, err)
 }
 
 // TestUpdateWithError tests the Update method with an error updating the user.

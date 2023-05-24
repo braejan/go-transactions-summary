@@ -2,7 +2,10 @@ module github.com/braejan/go-transactions-summary
 
 go 1.19
 
-require github.com/stretchr/testify v1.8.3
+require (
+	github.com/lib/pq v1.10.9
+	github.com/stretchr/testify v1.8.3
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
