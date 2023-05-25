@@ -9,4 +9,8 @@ var (
 	ErrBeginningTransaction = errors.New("error beginning transaction")
 	// ErrNilConfiguration is returned when the configuration is nil.
 	ErrNilConfiguration = errors.New("error nil configuration")
+	// ErrDBIsNil is the error returned when the database is nil.
+	ErrDBIsNil = errors.New("database is nil")
+	// ErrExec is the error returned when the query cannot be executed.
+	ErrExec = errors.New("error executing dml")
 )

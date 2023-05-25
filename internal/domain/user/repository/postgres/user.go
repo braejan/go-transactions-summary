@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"context"
 	"log"
 
 	"github.com/braejan/go-transactions-summary/internal/domain/user/entity"
@@ -116,18 +115,22 @@ const (
 )
 
 func (postgresRepo *postgresUserRepository) Create(user *entity.User) (err error) {
+	if user == nil {
+		err = userErrors.ErrNilUser
+		return
+	}
 	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
 	}
 	defer postgresRepo.baseDB.Close(db)
-	tx, err := db.BeginTx(context.Background(), nil)
+	tx, err := postgresRepo.baseDB.BeginTx(db)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
 	}
-	_, err = tx.Exec(createUser, user.ID, user.Name, user.Email)
+	_, err = postgresRepo.baseDB.Exec(tx, createUser, user.ID, user.Name, user.Email)
 	if err != nil {
 		_ = postgresRepo.baseDB.Rollback(tx)
 		err = userErrors.ErrCreatingUser
@@ -143,13 +146,17 @@ const (
 )
 
 func (postgresRepo *postgresUserRepository) Update(user *entity.User) (err error) {
+	if user == nil {
+		err = userErrors.ErrNilUser
+		return
+	}
 	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
 	}
 	defer postgresRepo.baseDB.Close(db)
-	tx, err := db.BeginTx(context.Background(), nil)
+	tx, err := postgresRepo.baseDB.BeginTx(db)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return

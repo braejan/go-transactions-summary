@@ -23,4 +23,6 @@ var (
 	ErrScanningUserByID = errors.New("error scanning user by ID")
 	// ErrScanningUserByEmail is the error returned when scanning a user by email.
 	ErrScanningUserByEmail = errors.New("error scanning user by email")
+	// ErrNilUser is the error returned when the user is nil.
+	ErrNilUser = errors.New("user is nil")
 )

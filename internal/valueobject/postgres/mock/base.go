@@ -107,7 +107,6 @@ func (_m *mockBasePostgresDatabase) Rollback(tx *sql.Tx) (err error) {
 // Exec provides a mock function with given fields: tx, query, args
 func (_m *mockBasePostgresDatabase) Exec(tx *sql.Tx, query string, args ...interface{}) (result sql.Result, err error) {
 	ret := _m.Called(tx, query, args)
-
 	var r0 sql.Result
 	if rf, ok := ret.Get(0).(func(*sql.Tx, string, ...interface{}) sql.Result); ok {
 		r0 = rf(tx, query, args...)
@@ -130,7 +129,6 @@ func (_m *mockBasePostgresDatabase) Exec(tx *sql.Tx, query string, args ...inter
 // Query provides a mock function with given fields: tx, query, args
 func (_m *mockBasePostgresDatabase) Query(tx *sql.Tx, query string, args ...interface{}) (rows *sql.Rows, err error) {
 	ret := _m.Called(tx, query, args)
-
 	var r0 *sql.Rows
 	if rf, ok := ret.Get(0).(func(*sql.Tx, string, ...interface{}) *sql.Rows); ok {
 		r0 = rf(tx, query, args...)
