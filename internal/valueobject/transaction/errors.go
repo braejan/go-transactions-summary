@@ -27,4 +27,8 @@ var (
 	ErrCreatingTransaction = errors.New("error creating transaction")
 	// ErrNilTransaction is the error returned when the transaction is nil.
 	ErrNilTransaction = errors.New("transaction is nil")
+	// ErrEmptyOrigin is the error returned when the origin is empty.
+	ErrEmptyOrigin = errors.New("origin is empty")
+	// ErrQueryingTransactionsByOrigin is the error returned when querying transactions by origin.
+	ErrQueryingTransactionsByOrigin = errors.New("error querying transactions by origin")
 )

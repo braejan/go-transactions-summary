@@ -146,6 +146,36 @@ func (postgresRepo *postgresTransactionRepository) GetDebitsByAccountID(accountI
 	return
 }
 
+// GetTransactionsByOrigin returns all transactions for an origin.
+const (
+	getTransactionsByOrigin = `SELECT id, accountid, amount, date, origin FROM transactions WHERE origin = $1`
+)
+
+func (postgresRepo *postgresTransactionRepository) GetTransactionsByOrigin(origin string) (txs []*entity.Transaction, err error) {
+	if origin == "" {
+		err = transaction.ErrEmptyOrigin
+		return
+	}
+	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	if err != nil {
+		err = postgres.ErrOpeningDatabase
+		return
+	}
+	defer postgresRepo.baseDB.Close(db)
+	dbTx, err := postgresRepo.baseDB.BeginTx(db)
+	if err != nil {
+		err = postgres.ErrBeginningTransaction
+		return
+	}
+	rows, err := postgresRepo.baseDB.Query(dbTx, getTransactionsByOrigin, origin)
+	if err != nil {
+		err = transaction.ErrQueryingTransactionsByOrigin
+		return
+	}
+	txs, err = rows2Transactions(rows)
+	return
+}
+
 // Create creates a new transaction.
 const (
 	createTransaction = `INSERT INTO transactions (id, accountid, amount, date, origin) VALUES ($1, $2, $3, $4, $5)`
@@ -169,9 +199,11 @@ func (postgresRepo *postgresTransactionRepository) Create(tx *entity.Transaction
 	}
 	_, err = postgresRepo.baseDB.Exec(dbTx, createTransaction, tx.ID, tx.AccountID, tx.Amount, tx.Date, tx.Origin)
 	if err != nil {
+		_ = postgresRepo.baseDB.Rollback(dbTx)
 		err = transaction.ErrCreatingTransaction
 		return
 	}
+	err = postgresRepo.baseDB.Commit(dbTx)
 	return
 }
 

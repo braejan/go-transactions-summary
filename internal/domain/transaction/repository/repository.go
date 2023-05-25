@@ -15,6 +15,8 @@ type TransactionRepository interface {
 	GetCreditsByAccountID(accountID uuid.UUID) (txs []*entity.Transaction, err error)
 	// GetDebitsByAccountID returns the debits of an account.
 	GetDebitsByAccountID(accountID uuid.UUID) (txs []*entity.Transaction, err error)
+	// GetTransactionsByOrigin returns the transactions of an account by origin.
+	GetTransactionsByOrigin(origin string) (txs []*entity.Transaction, err error)
 	// Create creates a new transaction.
 	Create(tx *entity.Transaction) (err error)
 }
