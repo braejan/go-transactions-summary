@@ -15,4 +15,8 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 	// ErrUserAlreadyCreated is the error returned when a user is already created.
 	ErrUserAlreadyCreated = errors.New("user already created")
+	// ErrQueryingUserByID is the error returned when querying a user by ID.
+	ErrQueryingUserByID = errors.New("error querying user by ID")
+	// ErrScanningUserByID is the error returned when scanning a user by ID.
+	ErrScanningUserByID = errors.New("error scanning user by ID")
 )

@@ -7,4 +7,6 @@ var (
 	ErrOpeningDatabase = errors.New("error opening database")
 	// ErrBeginningTransaction is returned when the transaction cannot be started.
 	ErrBeginningTransaction = errors.New("error beginning transaction")
+	// ErrNilConfiguration is returned when the configuration is nil.
+	ErrNilConfiguration = errors.New("error nil configuration")
 )

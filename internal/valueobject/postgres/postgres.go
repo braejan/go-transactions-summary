@@ -9,6 +9,7 @@ import (
 type PostgresDatabase interface {
 	Open(dataSourceName string) (db *sql.DB, err error)
 	Close(db *sql.DB) (err error)
+	BeginTx(db *sql.DB) (tx *sql.Tx, err error)
 	Commit(tx *sql.Tx) (err error)
 	Rollback(tx *sql.Tx) (err error)
 	Exec(tx *sql.Tx, query string, args ...interface{}) (result sql.Result, err error)

@@ -1,15 +1,13 @@
--- Eliminar la base de datos si existe
-DROP DATABASE IF EXISTS stori-challenge-db;
-
--- Crear la base de datos
-CREATE DATABASE stori-challenge-db;
-
 -- Conectar a la base de datos
 \c stori-challenge-db;
+
+-- Eliminar la tabla "users" si existe
+DROP TABLE IF EXISTS users;
 
 -- Crear la tabla "users"
 CREATE TABLE users (
     id    BIGINT PRIMARY KEY,
-    name  TEXT,
-    email TEXT
+    name  TEXT COMMENT 'Nombre del usuario',
+    email TEXT UNIQUE COMMENT 'Dirección de correo electrónico del usuario'
 );
+

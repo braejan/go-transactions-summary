@@ -27,6 +27,12 @@ func (postgresRepo *basePostgresDatabase) Close(db *sql.DB) (err error) {
 	return
 }
 
+// Begin begins a transaction.
+func (postgresRepo *basePostgresDatabase) BeginTx(db *sql.DB) (tx *sql.Tx, err error) {
+	tx, err = db.BeginTx(context.Background(), nil)
+	return
+}
+
 // Commit commits a transaction.
 func (postgresRepo *basePostgresDatabase) Commit(tx *sql.Tx) (err error) {
 	err = tx.Commit()
