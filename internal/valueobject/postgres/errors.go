@@ -13,4 +13,6 @@ var (
 	ErrDBIsNil = errors.New("database is nil")
 	// ErrExec is the error returned when the query cannot be executed.
 	ErrExec = errors.New("error executing dml")
+	// ErrCommittingTransaction is the error returned when the transaction cannot be committed.
+	ErrCommittingTransaction = errors.New("error committing transaction")
 )
