@@ -84,14 +84,14 @@ func (postgresRepo *postgresUserRepository) GetByEmail(email string) (user *enti
 		return
 	}
 	defer postgresRepo.baseDB.Close(db)
-	tx, err := db.BeginTx(context.Background(), nil)
+	tx, err := postgresRepo.baseDB.BeginTx(db)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
 	}
 	rows, err := postgresRepo.baseDB.Query(tx, getUserByEmail, email)
 	if err != nil {
-		err = userErrors.ErrScanningUserRow
+		err = userErrors.ErrQueryingUserByEmail
 		return
 	}
 	user = &entity.User{}
@@ -99,7 +99,7 @@ func (postgresRepo *postgresUserRepository) GetByEmail(email string) (user *enti
 		err = rows.Scan(&user.ID, &user.Name, &user.Email)
 		if err != nil {
 			user = nil
-			err = userErrors.ErrScanningUserRow
+			err = userErrors.ErrScanningUserByEmail
 			return
 		}
 	}

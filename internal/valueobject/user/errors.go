@@ -17,6 +17,10 @@ var (
 	ErrUserAlreadyCreated = errors.New("user already created")
 	// ErrQueryingUserByID is the error returned when querying a user by ID.
 	ErrQueryingUserByID = errors.New("error querying user by ID")
+	// ErrQueryingUserByEmail is the error returned when querying a user by email.
+	ErrQueryingUserByEmail = errors.New("error querying user by email")
 	// ErrScanningUserByID is the error returned when scanning a user by ID.
 	ErrScanningUserByID = errors.New("error scanning user by ID")
+	// ErrScanningUserByEmail is the error returned when scanning a user by email.
+	ErrScanningUserByEmail = errors.New("error scanning user by email")
 )
