@@ -159,6 +159,7 @@ func (postgresRepo *postgresAccountRepository) Update(acc *entity.Account) (err 
 	if err != nil {
 		_ = postgresRepo.baseDB.Rollback(tx)
 		err = account.ErrUpdatingAccount
+		return
 	}
 	err = postgresRepo.baseDB.Commit(tx)
 	return

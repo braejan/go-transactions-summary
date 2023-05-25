@@ -91,7 +91,7 @@ func TestUpdateErrUpdatingUser(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(tx, nil)
 	dbMocked.ExpectBegin()
-	// And a mocked response when calling Update.
+	// And a mocked response when calling Exec.
 	dbBase.On("Exec", tx, "UPDATE users SET name = $1, email = $2 WHERE id = $3", []interface{}{"John Doe", "john.doe@amazingemail.com", int64(1)}).Return(nil, user.ErrUpdatingUser)
 	// And a mocked response when calling Rollback.
 	dbBase.On("Rollback", tx).Return(nil)

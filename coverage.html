@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/braejan/go-transactions-summary/internal/domain/account/repository/postgres/account.go (76.7%)</option>
+				<option value="file0">github.com/braejan/go-transactions-summary/internal/domain/account/repository/postgres/account.go (100.0%)</option>
 				
 				<option value="file1">github.com/braejan/go-transactions-summary/internal/domain/user/entity/user.go (100.0%)</option>
 				
@@ -101,7 +101,7 @@ type postgresAccountRepository struct {
 func NewPostgresAccountRepository(
         configuration *postgres.PostgresConfiguration,
         baseDB postgres.PostgresDatabase) (accountRepo repository.AccountRepository, err error) <span class="cov8" title="1">{
-        if configuration == nil </span><span class="cov0" title="0">{
+        if configuration == nil </span><span class="cov8" title="1">{
                 err = postgres.ErrNilConfiguration
                 return
         }</span>
@@ -220,28 +220,29 @@ const (
         updateAccount = `UPDATE accounts SET balance = $1, active = $2 WHERE id = $3`
 )
 
-func (postgresRepo *postgresAccountRepository) Update(acc *entity.Account) (err error) <span class="cov0" title="0">{
-        if acc == nil </span><span class="cov0" title="0">{
+func (postgresRepo *postgresAccountRepository) Update(acc *entity.Account) (err error) <span class="cov8" title="1">{
+        if acc == nil </span><span class="cov8" title="1">{
                 err = account.ErrNilAccount
                 return
         }</span>
-        <span class="cov0" title="0">db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+        if err != nil </span><span class="cov8" title="1">{
                 err = postgres.ErrOpeningDatabase
                 return
         }</span>
-        <span class="cov0" title="0">defer postgresRepo.baseDB.Close(db)
+        <span class="cov8" title="1">defer postgresRepo.baseDB.Close(db)
         tx, err := postgresRepo.baseDB.BeginTx(db)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 err = postgres.ErrBeginningTransaction
                 return
         }</span>
-        <span class="cov0" title="0">_, err = postgresRepo.baseDB.Exec(tx, updateAccount, acc.Balance, acc.Active, acc.ID)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">_, err = postgresRepo.baseDB.Exec(tx, updateAccount, acc.Balance, acc.Active, acc.ID)
+        if err != nil </span><span class="cov8" title="1">{
                 _ = postgresRepo.baseDB.Rollback(tx)
                 err = account.ErrUpdatingAccount
+                return
         }</span>
-        <span class="cov0" title="0">err = postgresRepo.baseDB.Commit(tx)
+        <span class="cov8" title="1">err = postgresRepo.baseDB.Commit(tx)
         return</span>
 }
 </pre>
