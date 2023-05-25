@@ -144,7 +144,7 @@ func TestGetByIDSuccess(t *testing.T) {
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
-	expected := sqlmock.NewRows([]string{"id", "balance", "userid", "active"}).AddRow(ID, int64(1000), int64(1), true)
+	expected := sqlmock.NewRows([]string{"id", "balance", "userid", "active"}).AddRow(ID, float64(1000), int64(1), true)
 	dbMocked.ExpectQuery("SELECT (.+) FROM accounts WHERE id = (.+)").WithArgs(ID).WillReturnRows(expected)
 	rows, err := dbBase.Query(tx, "SELECT id, balance, userid, active FROM accounts WHERE id = $1", ID)
 	assert.Nil(t, err)
@@ -157,7 +157,7 @@ func TestGetByIDSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	// And the user returned should be the expected one.
 	assert.Equal(t, ID, account.ID)
-	assert.Equal(t, int64(1000), account.Balance)
+	assert.Equal(t, float64(1000), account.Balance)
 	assert.Equal(t, int64(1), account.UserID)
 	assert.Equal(t, true, account.Active)
 }
@@ -197,7 +197,7 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 	assert.Equal(t, account.ErrAccountNotFound, err)
 	// And the user returned should be the expected one.
 	assert.Equal(t, uuid.Nil, acc.ID)
-	assert.Equal(t, int64(0), acc.Balance)
+	assert.Equal(t, float64(0), acc.Balance)
 	assert.Equal(t, int64(0), acc.UserID)
 	assert.Equal(t, false, acc.Active)
 }
@@ -335,7 +335,7 @@ func TestGetByUserIDSuccess(t *testing.T) {
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
-	expected := sqlmock.NewRows([]string{"id", "balance", "userid", "active"}).AddRow(ID, int64(1000), int64(1), true)
+	expected := sqlmock.NewRows([]string{"id", "balance", "userid", "active"}).AddRow(ID, float64(1000), int64(1), true)
 	dbMocked.ExpectQuery("SELECT (.+) FROM accounts WHERE userid = (.+)").WithArgs(userID).WillReturnRows(expected)
 	rows, err := dbBase.Query(tx, "SELECT id, balance, userid, active FROM accounts WHERE userid = $1", userID)
 	assert.Nil(t, err)
@@ -348,7 +348,7 @@ func TestGetByUserIDSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	// And the user returned should be the expected one.
 	assert.Equal(t, ID, account.ID)
-	assert.Equal(t, int64(1000), account.Balance)
+	assert.Equal(t, float64(1000), account.Balance)
 	assert.Equal(t, int64(1), account.UserID)
 	assert.Equal(t, true, account.Active)
 }

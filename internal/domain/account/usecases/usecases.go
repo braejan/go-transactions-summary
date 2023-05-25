@@ -5,11 +5,11 @@ import "github.com/braejan/go-transactions-summary/internal/domain/account/entit
 // AccountUsecases interface defines the methods that the account usecases must implement.
 type AccountUsecases interface {
 	// GetByID returns an account by its ID.
-	GetByID(ID int64) (account *entity.Account, err error)
+	GetByID(ID string) (acc *entity.Account, err error)
 	// GetByUserID returns an account by its user ID.
-	GetByUserID(userID int64) (account *entity.Account, err error)
+	GetByUserID(userID int64) (acc *entity.Account, err error)
 	// Create creates a new account.
 	Create(userID int64) (err error)
 	// Update updates an account.
-	Update(ID int64, balance int64) (err error)
+	Update(ID string, balance float64, active bool) (err error)
 }

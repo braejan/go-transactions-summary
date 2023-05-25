@@ -21,4 +21,10 @@ var (
 	ErrUpdatingAccount = errors.New("error updating account")
 	// ErrScanningAccountByID is returned when an error occurs while scanning an account by its ID.
 	ErrScanningAccount = errors.New("error scanning account")
+	// ErrAccountRepositoryIsNil is returned when an account repository is nil.
+	ErrAccountRepositoryIsNil = errors.New("account repository is nil")
+	// ErrProcessingAccountID is returned when an error occurs while processing an account ID.
+	ErrProcessingAccountID = errors.New("error processing account ID")
+	// ErrAccountAlreadyCreated is returned when an account is already created.
+	ErrAccountAlreadyCreated = errors.New("account already created")
 )

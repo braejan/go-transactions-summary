@@ -7,7 +7,7 @@ import (
 // Account struct defines the account entity.
 type Account struct {
 	ID      uuid.UUID
-	Balance int64
+	Balance float64
 	UserID  int64
 	Active  bool
 }
