@@ -6,6 +6,7 @@ import (
 	"github.com/braejan/go-transactions-summary/internal/valueobject/account"
 	"github.com/braejan/go-transactions-summary/internal/valueobject/postgres"
 	"github.com/google/uuid"
+	_ "github.com/lib/pq"
 )
 
 // postgresAccountRepository struct implements the AccountRepository interface using
