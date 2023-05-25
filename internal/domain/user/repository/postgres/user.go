@@ -136,7 +136,7 @@ func (postgresRepo *postgresUserRepository) Create(user *entity.User) (err error
 		err = userErrors.ErrCreatingUser
 		return
 	}
-	_ = postgresRepo.baseDB.Commit(tx)
+	err = postgresRepo.baseDB.Commit(tx)
 	return
 }
 
@@ -167,6 +167,6 @@ func (postgresRepo *postgresUserRepository) Update(user *entity.User) (err error
 		err = userErrors.ErrUpdatingUser
 		return
 	}
-	_ = postgresRepo.baseDB.Commit(tx)
+	err = postgresRepo.baseDB.Commit(tx)
 	return
 }

@@ -7,18 +7,18 @@ import (
 // Account struct defines the account entity.
 type Account struct {
 	ID      uuid.UUID
-	balance int64
-	userID  int64
-	active  bool
+	Balance int64
+	UserID  int64
+	Active  bool
 }
 
 // NewAccount returns a new Account instance.
 func NewAccount(userID int64) (account *Account) {
 	account = &Account{
 		ID:      uuid.New(),
-		balance: 0,
-		userID:  userID,
-		active:  false,
+		Balance: 0,
+		UserID:  userID,
+		Active:  false,
 	}
 	return
 }

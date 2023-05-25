@@ -1,11 +1,14 @@
 package repository
 
-import "github.com/braejan/go-transactions-summary/internal/domain/account/entity"
+import (
+	"github.com/braejan/go-transactions-summary/internal/domain/account/entity"
+	"github.com/google/uuid"
+)
 
 // AccountRepository interface defines the methods that the account repository must implement.
 type AccountRepository interface {
 	// GetByID returns an account by its ID.
-	GetByID(id int64) (account *entity.Account, err error)
+	GetByID(id uuid.UUID) (account *entity.Account, err error)
 	// GetByUserID returns an account by its user ID.
 	GetByUserID(userID int64) (account *entity.Account, err error)
 	// Create creates a new account.
