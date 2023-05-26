@@ -15,4 +15,8 @@ var (
 	ErrExec = errors.New("error executing dml")
 	// ErrCommittingTransaction is the error returned when the transaction cannot be committed.
 	ErrCommittingTransaction = errors.New("error committing transaction")
+	// ErrRollingBackTransaction is the error returned when the transaction cannot be rolled back.
+	ErrRollingBackTransaction = errors.New("error rolling back transaction")
+	// ErrQueryingDatabase is the error returned when the database cannot be queried.
+	ErrQueryingDatabase = errors.New("error querying database")
 )

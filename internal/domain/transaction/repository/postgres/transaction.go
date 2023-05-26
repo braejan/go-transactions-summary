@@ -57,14 +57,13 @@ func (postgresRepo *postgresTransactionRepository) GetByID(ID uuid.UUID) (tx *en
 		err = transaction.ErrQueryingTransactionByID
 		return
 	}
-	tx = &entity.Transaction{}
-	if rows.Next() {
-		err = rows.Scan(&tx.ID, &tx.AccountID, &tx.Amount, &tx.Date, &tx.Origin)
-		if err != nil {
-			err = transaction.ErrScanningTransactionByID
-			return
-		}
+	txs, err := rows2Transactions(rows)
+	if err != nil {
+		err = transaction.ErrScanningTransactionByID
+		return
 	}
+	// There should be only one transaction.
+	tx = txs[0]
 	return
 }
 
@@ -117,6 +116,9 @@ func (postgresRepo *postgresTransactionRepository) GetCreditsByAccountID(account
 		return
 	}
 	txs, err = rows2Transactions(rows)
+	if err != nil {
+		err = transaction.ErrScanningCreditsByAccountID
+	}
 	return
 }
 
