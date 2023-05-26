@@ -16,33 +16,33 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// TestNewAccountUsecasesWithUserRepoNil tests the NewAccountUsecases function with a nil user repository.
-func TestNewAccountUsecasesWithUserRepoNil(t *testing.T) {
+// TestNewAccountUseCasesWithUserRepoNil tests the NewAccountUseCases function with a nil user repository.
+func TestNewAccountUseCasesWithUserRepoNil(t *testing.T) {
 	// Given a valid account repository.
 	accRepo := accMock.NewMockAccountRepository()
-	// When NewAccountUsecases is called with a nil user repository.
-	_, err := usecases.NewAccountUsecases(accRepo, nil)
+	// When NewAccountUseCases is called with a nil user repository.
+	_, err := usecases.NewAccountUseCases(accRepo, nil)
 	// Then the error ErrUserRepositoryIsNil is returned.
 	assert.EqualError(t, err, user.ErrUserRepositoryIsNil.Error())
 }
 
-// TestNewAccountUsecasesWithAccountRepoNil tests the NewAccountUsecases function with a nil account repository.
-func TestNewAccountUsecasesWithAccountRepoNil(t *testing.T) {
+// TestNewAccountUseCasesWithAccountRepoNil tests the NewAccountUseCases function with a nil account repository.
+func TestNewAccountUseCasesWithAccountRepoNil(t *testing.T) {
 	// Given a valid user repository.
 	userRepo := userMock.NewMockUserRepository()
-	// When NewAccountUsecases is called with a nil account repository.
-	_, err := usecases.NewAccountUsecases(nil, userRepo)
+	// When NewAccountUseCases is called with a nil account repository.
+	_, err := usecases.NewAccountUseCases(nil, userRepo)
 	// Then the error ErrAccountRepositoryIsNil is returned.
 	assert.EqualError(t, err, account.ErrAccountRepositoryIsNil.Error())
 }
 
-// TestNewAccountUsecasesWithValidRepos tests the NewAccountUsecases function with valid repositories.
-func TestNewAccountUsecasesWithValidRepos(t *testing.T) {
+// TestNewAccountUseCasesWithValidRepos tests the NewAccountUseCases function with valid repositories.
+func TestNewAccountUseCasesWithValidRepos(t *testing.T) {
 	// Given valid repositories.
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
-	// When NewAccountUsecases is called with valid repositories.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	// When NewAccountUseCases is called with valid repositories.
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	// Then no error is returned.
 	assert.NoError(t, err)
 	// And the usecases is not nil.
@@ -55,7 +55,7 @@ func TestGetByIDWithInvalidID(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// When GetByID is called with an invalid ID.
@@ -70,7 +70,7 @@ func TestGetByIDSucess(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a valid account
@@ -91,7 +91,7 @@ func TestGetByUserIDWithInvalidUserID(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a mocked response when GetByUserID is called.
@@ -108,7 +108,7 @@ func TestCreateWithInvalidUserID(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a mocked response when userRepo.GetByID is called.
@@ -125,7 +125,7 @@ func TestCreateWithExistingAccount(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a mocked response when userRepo.GetByID is called.
@@ -148,7 +148,7 @@ func TestCreateWithErrorGettingAccount(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a mocked response when userRepo.GetByID is called.
@@ -168,7 +168,7 @@ func TestCreateWithRepoError(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a mocked response when userRepo.GetByID is called.
@@ -190,7 +190,7 @@ func TestCreateWithSuccess(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a mocked response when userRepo.GetByID is called.
@@ -212,7 +212,7 @@ func TestUpdateWithInvalidAccountID(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// When Update is called with an invalid account ID.
@@ -227,7 +227,7 @@ func TestUpdateWithAccountNotFound(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a valid uuid.UUID accID
@@ -246,7 +246,7 @@ func TestUpdateWithRepoError(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a valid uuid.UUID accID
@@ -268,7 +268,7 @@ func TestUpdateWithSuccess(t *testing.T) {
 	accRepo := accMock.NewMockAccountRepository()
 	userRepo := userMock.NewMockUserRepository()
 	// And a valid usecases.
-	usecases, err := usecases.NewAccountUsecases(accRepo, userRepo)
+	usecases, err := usecases.NewAccountUseCases(accRepo, userRepo)
 	assert.NoError(t, err)
 	assert.NotNil(t, usecases)
 	// And a valid uuid.UUID accID

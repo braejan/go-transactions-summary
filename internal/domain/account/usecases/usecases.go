@@ -2,8 +2,8 @@ package usecases
 
 import "github.com/braejan/go-transactions-summary/internal/domain/account/entity"
 
-// AccountUsecases interface defines the methods that the account usecases must implement.
-type AccountUsecases interface {
+// AccountUseCases interface defines the methods that the account usecases must implement.
+type AccountUseCases interface {
 	// GetByID returns an account by its ID.
 	GetByID(ID string) (acc *entity.Account, err error)
 	// GetByUserID returns an account by its user ID.

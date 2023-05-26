@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/braejan/go-transactions-summary/internal/domain/transaction/entity"
@@ -87,7 +88,7 @@ func TestCreateErrExecutingQuery(t *testing.T) {
 	// And a mocked response calling Rollback.
 	dbBaseMocked.On("Rollback", dbTx).Return(nil)
 	// And a valid entity.Transaction to create.
-	tx, err := entity.NewTransaction(uuid.New(), 100.48, "8/2", origin)
+	tx, err := entity.NewTransaction(uuid.New(), 100.48, time.Now(), origin)
 	assert.Nil(t, err)
 	// And a mocked response calling Exec.
 	dbBaseMocked.On(
@@ -130,7 +131,7 @@ func TestCreateErrCommittingTransaction(t *testing.T) {
 	// And a mocked response calling Rollback.
 	dbBaseMocked.On("Rollback", dbTx).Return(nil)
 	// And a valid entity.Transaction to create.
-	tx, err := entity.NewTransaction(uuid.New(), 100.48, "8/2", origin)
+	tx, err := entity.NewTransaction(uuid.New(), 100.48, time.Now(), origin)
 	assert.Nil(t, err)
 	// And a mocked response calling Exec.
 	dbBaseMocked.On(
@@ -175,7 +176,7 @@ func TestCreateSuccess(t *testing.T) {
 	// And a mocked response calling Commit.
 	dbBaseMocked.On("Commit", dbTx).Return(nil)
 	// And a valid entity.Transaction to create.
-	tx, err := entity.NewTransaction(uuid.New(), 100.48, "8/2", origin)
+	tx, err := entity.NewTransaction(uuid.New(), 100.48, time.Now(), origin)
 	assert.Nil(t, err)
 	// And a mocked response calling Exec.
 	dbBaseMocked.On(

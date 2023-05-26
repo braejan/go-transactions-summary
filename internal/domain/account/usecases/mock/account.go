@@ -12,7 +12,7 @@ type mockAccountUseCases struct {
 }
 
 // NewMockAccountUseCases returns a new mock instance.
-func NewMockAccountUseCases() usecases.AccountUsecases {
+func NewMockAccountUseCases() usecases.AccountUseCases {
 	return &mockAccountUseCases{}
 }
 

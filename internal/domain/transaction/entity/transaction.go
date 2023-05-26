@@ -7,10 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	format string = "1/2"
-)
-
 // Transaction struct defines the transaction entity.
 type Transaction struct {
 	ID uuid.UUID
@@ -29,7 +25,7 @@ type Transaction struct {
 }
 
 // NewTransaction returns a new Transaction instance.
-func NewTransaction(accountID uuid.UUID, amount float64, date, origin string) (tx *Transaction, err error) {
+func NewTransaction(accountID uuid.UUID, amount float64, dateTx time.Time, origin string) (tx *Transaction, err error) {
 	if amount == 0 {
 		err = transaction.ErrTransactionAmountIsZero
 		return
@@ -38,15 +34,15 @@ func NewTransaction(accountID uuid.UUID, amount float64, date, origin string) (t
 		err = transaction.ErrTransactionOriginIsEmpty
 		return
 	}
+	if dateTx.IsZero() {
+		err = transaction.ErrTransactionDateIsInvalid
+		return
+	}
 	operation := "credit"
 	if amount < 0 {
 		operation = "debit"
 	}
-	dateTx, err := time.Parse(format, date)
-	if err != nil {
-		err = transaction.ErrTransactionDateIsInvalid
-		return
-	}
+
 	tx = &Transaction{
 		ID:        uuid.New(),
 		AccountID: accountID,

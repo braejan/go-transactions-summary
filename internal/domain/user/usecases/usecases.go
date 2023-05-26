@@ -4,7 +4,7 @@ import "github.com/braejan/go-transactions-summary/internal/domain/user/entity"
 
 // UserUsecases interface defines the methods that the user usecases must implement.
 
-type UserUsecases interface {
+type UserUseCases interface {
 	// GetByID returns a user by its ID.
 	GetByID(ID int64) (user *entity.User, err error)
 	// GetByEmail returns a user by its email.

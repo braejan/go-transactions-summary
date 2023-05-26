@@ -15,10 +15,9 @@ func TestNewTransactionWithZeroAmount(t *testing.T) {
 	// Given a valid account ID, zero amount, date and origin.
 	accountID := uuid.New()
 	amount := float64(0)
-	date := "7/28"
 	origin := "txns.csv"
 	// When call the NewTransaction function.
-	tx, err := entity.NewTransaction(accountID, amount, date, origin)
+	tx, err := entity.NewTransaction(accountID, amount, time.Now(), origin)
 	// Then the transaction must not be created.
 	assert.Nil(t, tx)
 	assert.Equal(t, transaction.ErrTransactionAmountIsZero, err)
@@ -31,7 +30,7 @@ func TestNewTransactionWithEmptyOrigin(t *testing.T) {
 	amount := float64(100)
 	origin := ""
 	// When call the NewTransaction function.
-	tx, err := entity.NewTransaction(accountID, amount, "7/28", origin)
+	tx, err := entity.NewTransaction(accountID, amount, time.Now(), origin)
 	// Then the transaction must not be created.
 	assert.Nil(t, tx)
 	assert.Equal(t, transaction.ErrTransactionOriginIsEmpty, err)
@@ -47,7 +46,7 @@ func TestNewTransactionWithCredit(t *testing.T) {
 	assert.Nil(t, err)
 	origin := "txns.csv"
 	// When call the NewTransaction function.
-	tx, err := entity.NewTransaction(accountID, amount, "7/28", origin)
+	tx, err := entity.NewTransaction(accountID, amount, date, origin)
 	// Then the transaction must be created.
 	assert.Nil(t, err)
 	assert.NotNil(t, tx)
@@ -69,7 +68,7 @@ func TestNewTransactionWithDebit(t *testing.T) {
 	assert.Nil(t, err)
 	origin := "txns.csv"
 	// When call the NewTransaction function.
-	tx, err := entity.NewTransaction(accountID, amount, "7/28", origin)
+	tx, err := entity.NewTransaction(accountID, amount, date, origin)
 	// Then the transaction must be created.
 	assert.Nil(t, err)
 	assert.NotNil(t, tx)
@@ -86,7 +85,7 @@ func TestNewTransactionWithInvalidDate(t *testing.T) {
 	// Given a valid account ID, amount, invalid date and origin.
 	accountID := uuid.New()
 	amount := float64(100.48)
-	date := "13/28"
+	date := time.Time{}
 	origin := "txns.csv"
 	// When call the NewTransaction function.
 	tx, err := entity.NewTransaction(accountID, amount, date, origin)

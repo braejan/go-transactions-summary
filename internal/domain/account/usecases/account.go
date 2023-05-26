@@ -15,8 +15,8 @@ type accountUsecases struct {
 	userRepo    userRepo.UserRepository
 }
 
-// NewAccountUsecases returns a new accountUsecases instance.
-func NewAccountUsecases(accountRepo accRepo.AccountRepository, usrRepo userRepo.UserRepository) (usecases AccountUsecases, err error) {
+// NewAccountUseCases returns a new accountUsecases instance.
+func NewAccountUseCases(accountRepo accRepo.AccountRepository, usrRepo userRepo.UserRepository) (usecases AccountUseCases, err error) {
 	if accountRepo == nil {
 		err = account.ErrAccountRepositoryIsNil
 		return

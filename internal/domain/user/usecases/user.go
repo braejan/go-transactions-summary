@@ -6,14 +6,14 @@ import (
 	"github.com/braejan/go-transactions-summary/internal/valueobject/user"
 )
 
-// userUsecases struct implements the UserUsecases interface.
+// userUsecases struct implements the UserUseCases interface.
 
 type userUsecases struct {
 	userRepo repository.UserRepository
 }
 
-// NewUserUsecases returns a new userUsecases instance.
-func NewUserUsecases(userRepo repository.UserRepository) (usecases UserUsecases, err error) {
+// NewUserUseCases returns a new userUsecases instance.
+func NewUserUseCases(userRepo repository.UserRepository) (usecases UserUseCases, err error) {
 
 	if userRepo == nil {
 		err = user.ErrUserRepositoryIsNil
@@ -25,19 +25,19 @@ func NewUserUsecases(userRepo repository.UserRepository) (usecases UserUsecases,
 	return
 }
 
-// GetByID implements the UserUsecases interface method.
+// GetByID implements the UserUseCases interface method.
 func (u *userUsecases) GetByID(ID int64) (user *entity.User, err error) {
 	user, err = u.userRepo.GetByID(ID)
 	return
 }
 
-// GetByEmail implements the UserUsecases interface method.
+// GetByEmail implements the UserUseCases interface method.
 func (u *userUsecases) GetByEmail(email string) (user *entity.User, err error) {
 	user, err = u.userRepo.GetByEmail(email)
 	return
 }
 
-// Create implements the UserUsecases interface method.
+// Create implements the UserUseCases interface method.
 func (u *userUsecases) Create(ID int64, name string, email string) (err error) {
 	_, err = u.userRepo.GetByID(ID)
 	if err == user.ErrUserNotFound {
@@ -51,7 +51,7 @@ func (u *userUsecases) Create(ID int64, name string, email string) (err error) {
 	return
 }
 
-// Update implements the UserUsecases interface method.
+// Update implements the UserUseCases interface method.
 func (u *userUsecases) Update(ID int64, name string, email string) (err error) {
 	_, err = u.userRepo.GetByID(ID)
 	if err != nil {

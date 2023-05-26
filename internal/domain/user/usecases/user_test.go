@@ -11,24 +11,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestNewUserUsecasesWithouUserRepository tests the NewUserUsecases function
+// TestNewUserUseCasesWithouUserRepository tests the NewUserUseCases function
 // with a nil user repository.
-func TestNewUserUsecasesWithouUserRepository(t *testing.T) {
+func TestNewUserUseCasesWithouUserRepository(t *testing.T) {
 	// Given a nil user repository
-	// When call NewUserUsecases
-	_, err := usecases.NewUserUsecases(nil)
+	// When call NewUserUseCases
+	_, err := usecases.NewUserUseCases(nil)
 	// Then get next errors
 	assert.NotNil(t, err)
 	assert.Equal(t, user.ErrUserRepositoryIsNil, err)
 }
 
-// TestNewUserUsecasesWithUserRepository tests the NewUserUsecases function
+// TestNewUserUseCasesWithUserRepository tests the NewUserUseCases function
 // with a valid user repository.
-func TestNewUserUsecasesWithUserRepository(t *testing.T) {
+func TestNewUserUseCasesWithUserRepository(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
-	// When call NewUserUsecases
-	userUsecases, err := usecases.NewUserUsecases(mockedUserRepo)
+	// When call NewUserUseCases
+	userUsecases, err := usecases.NewUserUseCases(mockedUserRepo)
 	// Then get no errors
 	assert.Nil(t, err)
 	assert.NotNil(t, userUsecases)
@@ -39,7 +39,7 @@ func TestGetByIDWithError(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a user ID
 	ID := int64(1)
 	// And a mocked error calling GetByID
@@ -57,7 +57,7 @@ func TestGetByIDSucess(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a entity.User
 	user := &entity.User{
 		ID:    int64(1),
@@ -83,7 +83,7 @@ func TestGetByEmailWithError(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a user email
 	email := "john.doe@amazinemail.com"
 	// And a mocked error calling GetByEmail
@@ -101,7 +101,7 @@ func TestGetByEmailSucess(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a entity.User
 	user := &entity.User{
 		ID:    int64(1),
@@ -127,7 +127,7 @@ func TestCreateWithErrorGetByID(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a entity.User
 	ID := int64(1)
 	userTest := &entity.User{
@@ -149,7 +149,7 @@ func TestCreateWithError(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a entity.User
 	ID := int64(1)
 	userTest := &entity.User{
@@ -173,7 +173,7 @@ func TestCreateSucess(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a entity.User
 	ID := int64(1)
 	userTest := &entity.User{
@@ -196,7 +196,7 @@ func TestUpdateWithErrorGetByID(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	ID := int64(1)
 	// And a mocked error response calling GetByID
 	mockedUserRepo.On("GetByID", ID).Return(nil, user.ErrUserNotFound)
@@ -212,7 +212,7 @@ func TestUpdateWithError(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	ID := int64(1)
 	// And a mocked entity.User response calling GetByID
 	user := &entity.User{
@@ -235,7 +235,7 @@ func TestUpdateSucess(t *testing.T) {
 	// Given a valid user repository
 	mockedUserRepo := mock.NewMockUserRepository()
 	// And a user usecases
-	userUsecases, _ := usecases.NewUserUsecases(mockedUserRepo)
+	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	ID := int64(1)
 	// And a mocked entity.User response calling GetByID
 	user := &entity.User{
