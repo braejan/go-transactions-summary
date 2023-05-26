@@ -630,3 +630,139 @@ func TestGetDebitsByAccountIDSucess(t *testing.T) {
 	assert.Equal(t, -300.00, txs[2].Amount)
 
 }
+
+// TestGetTransactionsByOriginInvalidOrigin tests the error returned when the origin is invalid.
+func TestGetTransactionsByOriginInvalidOrigin(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a invalid origin.
+	origin := ""
+	// When getting a account by ID.
+	_, err = txRepo.GetTransactionsByOrigin(origin)
+	// Then the error returned is ErrEmptyOrigin.
+	assert.NotNil(t, err)
+	assert.Equal(t, transaction.ErrEmptyOrigin, err)
+}
+
+// TestGetTransactionsByOriginErrOpening tests the error returned when opening the database.
+func TestGetTransactionsByOriginErrOpening(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid origin.
+	origin := "txns.csv"
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(nil, voPostgres.ErrOpeningDatabase)
+	// When getting a account by ID.
+	_, err = txRepo.GetTransactionsByOrigin(origin)
+	// Then the error returned is ErrOpeningDatabase.
+	assert.NotNil(t, err)
+	assert.Equal(t, voPostgres.ErrOpeningDatabase, err)
+}
+
+// TestGetTransactionsByOriginErrBegginingTx tests the error returned when beginning the transaction.
+func TestGetTransactionsByOriginErrBegginingTx(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid origin.
+	origin := "txns.csv"
+	// And a sqlmock database.
+	db, _, _ := sqlmock.New()
+	db.Close()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	// And a mocked response when calling Close.
+	dbBaseMocked.On("Close", db).Return(nil)
+	// And a mocked response when calling BeginTx.
+	dbBaseMocked.On("BeginTx", db).Return(nil, voPostgres.ErrBeginningTransaction)
+	// When getting a account by ID.
+	_, err = txRepo.GetTransactionsByOrigin(origin)
+	// Then the error returned is ErrBeginningTx.
+	assert.NotNil(t, err)
+	assert.Equal(t, voPostgres.ErrBeginningTransaction, err)
+}
+
+// TestGetTransactionsByOriginErrQuerying tests the error returned when querying the database.
+func TestGetTransactionsByOriginErrQuerying(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid origin.
+	origin := "txns.csv"
+	// And a sqlmock database.
+	db, dbMocked, _ := sqlmock.New()
+	dbMocked.ExpectBegin()
+	defer db.Close()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	// And a mocked response when calling Close.
+	dbBaseMocked.On("Close", db).Return(nil)
+	// And a mocked response when calling BeginTx.
+	tx, _ := db.BeginTx(context.Background(), nil)
+	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	dbBaseMocked.On("Query", tx, "SELECT id, accountid, amount, date, origin FROM transactions WHERE origin = $1", []interface{}{origin}).Return(nil, voPostgres.ErrQueryingDatabase)
+	// When getting a account by ID.
+	_, err = txRepo.GetTransactionsByOrigin(origin)
+	// Then the error returned is ErrQueryingDatabase.
+	assert.NotNil(t, err)
+	assert.Equal(t, transaction.ErrQueryingTransactionsByOrigin, err)
+}
+
+// TestGetTransactionsByOriginSuccess tests the success when querying the database.
+func TestGetTransactionsByOriginSuccess(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBase := voPostgres.NewBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid origin.
+	origin := "txns.csv"
+	// And a sqlmock database.
+	db, dbMocked, _ := sqlmock.New()
+	dbMocked.ExpectBegin()
+	defer db.Close()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	// And a mocked response when calling Close.
+	dbBaseMocked.On("Close", db).Return(nil)
+	// And a mocked response when calling BeginTx.
+	tx, _ := db.BeginTx(context.Background(), nil)
+	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Query.
+	expected := sqlmock.NewRows([]string{"id", "accountid", "amount", "date", "origin"})
+	accountID := uuid.New()
+	expected.AddRow(uuid.New(), accountID, 100.00, time.Now(), "txns.csv")
+	expected.AddRow(uuid.New(), accountID, 200.00, time.Now(), "txns.csv")
+	expected.AddRow(uuid.New(), accountID, -300.00, time.Now(), "txns.csv")
+	dbMocked.ExpectQuery("SELECT (.+) FROM transactions WHERE origin = (.+)").WithArgs(origin).WillReturnRows(expected)
+	rows, err := dbBase.Query(tx, "SELECT id, accountid, amount, date, origin FROM transactions WHERE origin = $1", origin)
+	assert.Nil(t, err)
+	dbBaseMocked.On(
+		"Query",
+		tx,
+		"SELECT id, accountid, amount, date, origin FROM transactions WHERE origin = $1",
+		[]interface{}{origin}).Return(rows, nil)
+	// When getting a account by ID.
+	txs, err := txRepo.GetTransactionsByOrigin(origin)
+	// Then the error returned is Nil.
+	assert.Nil(t, err)
+	assert.NotNil(t, txs)
+	assert.Equal(t, 3, len(txs))
+	assert.Equal(t, -300.00, txs[2].Amount)
+}
