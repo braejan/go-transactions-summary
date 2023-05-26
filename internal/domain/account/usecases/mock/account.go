@@ -2,7 +2,6 @@ package mock
 
 import (
 	"github.com/braejan/go-transactions-summary/internal/domain/account/entity"
-	"github.com/braejan/go-transactions-summary/internal/domain/account/usecases"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -12,7 +11,7 @@ type mockAccountUseCases struct {
 }
 
 // NewMockAccountUseCases returns a new mock instance.
-func NewMockAccountUseCases() usecases.AccountUseCases {
+func NewMockAccountUseCases() *mockAccountUseCases {
 	return &mockAccountUseCases{}
 }
 

@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -105,47 +106,52 @@ func (useCases *localFileUseCases) openOSFile(path string) (file *os.File, err e
 }
 
 func (useCases *localFileUseCases) readFileRegisters(reader *csv.Reader, fileName string) (txs []*txEntity.Transaction, err error) {
-	if reader == nil {
-		err = voFile.ErrFileReaderIsEmpty
-		return
-	}
 	//Read the first line and ignore it.
 	// TODO: Check if is a valid header.
 	_, err = reader.Read()
 	if err != nil {
+		if err == io.EOF {
+			err = voFile.ErrFileIsEmpty
+			return
+		}
 		err = voFile.ErrFileCouldNotBeRead
 		return
 	}
 	lineCounter := 1
 	for {
 		lineCounter++
-		record, err := reader.Read()
-		if err != nil && err == io.EOF {
+		record, errRead := reader.Read()
+		if errRead != nil && errRead == io.EOF {
 			break
 		} else if err != nil {
 			txs = nil
+			err = errRead
 			break
 		}
 		// Validate the line.
-		userID, txDate, amount, err := useCases.checkValidLine(record)
-		if err != nil {
+		userID, txDate, amount, errCheck := useCases.checkValidLine(record)
+		if errCheck != nil {
 			txs = nil
+			err = errCheck
 			break
 		}
-		err = useCases.checkUser(userID)
-		if err != nil {
+		errCheck = useCases.checkUser(userID)
+		if errCheck != nil {
 			txs = nil
+			err = errCheck
 			break
 		}
 		// Check if the account exists.
-		acc, err := useCases.checkAccountByUserID(userID)
-		if err != nil {
+		acc, errAcc := useCases.checkAccountByUserID(userID)
+		if errAcc != nil {
 			txs = nil
+			err = errAcc
 			break
 		}
 		// Create the transaction entity and append it to the txs slice.
-		tx, err := txEntity.NewTransaction(acc.ID, amount, txDate, fileName)
-		if err != nil {
+		tx, errTx := txEntity.NewTransaction(acc.ID, amount, txDate, fileName)
+		if errTx != nil {
+			err = errTx
 			txs = nil
 			break
 		}
@@ -173,6 +179,12 @@ func (useCases *localFileUseCases) checkValidLine(record []string) (id int64, tx
 	// Validate the position 1 as a valid date format "1/2".
 	txDate, err = time.Parse("1/2", record[1])
 	if err != nil {
+		err = voFile.ErrFileLineIsInvalid
+		return
+	}
+	regex := `^[-|+]+[0-9]+(\.[0-9]*)?$`
+	match, _ := regexp.MatchString(regex, record[2])
+	if !match {
 		err = voFile.ErrFileLineIsInvalid
 		return
 	}
@@ -204,7 +216,7 @@ func (useCases *localFileUseCases) checkUser(ID int64) (err error) {
 func (useCases *localFileUseCases) checkAccountByUserID(userID int64) (account *acEntity.Account, err error) {
 	// Check if the account exists.
 	accAux, err := useCases.accountUseCases.GetByUserID(userID)
-	if err != nil && err == voUser.ErrUserNotFound {
+	if err != nil && err == voAccount.ErrAccountNotFound {
 		// Create a new account.
 		err = useCases.accountUseCases.Create(userID)
 		if err != nil {

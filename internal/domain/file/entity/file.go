@@ -10,7 +10,6 @@ type TxFile struct {
 	Hash string
 	// Lines is the number of lines in the file.
 	Lines int64
-	//
 }
 
 // NewTxFile returns a new TxFile instance.
