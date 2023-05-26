@@ -82,7 +82,7 @@ func TestGetByIDSucess(t *testing.T) {
 	// Then no error is returned.
 	assert.Nil(t, err)
 	// And the account returned is the expected.
-	assert.Equal(t, accExpected, acc)
+	assert.Equal(t, *accExpected, acc)
 }
 
 // TestGetByUserIDWithInvalidUserID tests the GetByUserID method with an invalid user ID.

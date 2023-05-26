@@ -49,7 +49,7 @@ func TestGetByIDWithError(t *testing.T) {
 	// Then get next errors
 	assert.NotNil(t, err)
 	assert.Equal(t, user.ErrUserNotFound, err)
-	assert.Nil(t, userTest)
+	assert.Equal(t, userTest, entity.User{})
 }
 
 // TestGetByIDSucess tests the GetByID method with success.
@@ -67,7 +67,7 @@ func TestGetByIDSucess(t *testing.T) {
 	// And a user ID
 	ID := int64(1)
 	// And a mocked entity.User response calling GetByID
-	mockedUserRepo.On("GetByID", ID).Return(user, nil)
+	mockedUserRepo.On("GetByID", ID).Return(&user, nil)
 	// When call GetByID with a valid ID
 	user, err := userUsecases.GetByID(ID)
 	// Then get no errors
@@ -93,7 +93,7 @@ func TestGetByEmailWithError(t *testing.T) {
 	// Then get next errors
 	assert.NotNil(t, err)
 	assert.Equal(t, user.ErrUserNotFound, err)
-	assert.Nil(t, userTest)
+	assert.Equal(t, entity.User{}, userTest)
 }
 
 // TestGetByEmailSucess tests the GetByEmail method with success.
@@ -111,7 +111,7 @@ func TestGetByEmailSucess(t *testing.T) {
 	// And a user email
 	email := "john.doe@amazinemail.com"
 	// And a mocked entity.User response calling GetByEmail
-	mockedUserRepo.On("GetByEmail", email).Return(user, nil)
+	mockedUserRepo.On("GetByEmail", email).Return(&user, nil)
 	// When call GetByEmail with a valid email
 	user, err := userUsecases.GetByEmail(email)
 	// Then get no errors

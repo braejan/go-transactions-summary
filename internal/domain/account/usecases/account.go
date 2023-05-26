@@ -42,6 +42,9 @@ func (u *accountUsecases) GetByID(ID string) (acc entity.Account, err error) {
 		return
 	}
 	accAux, err := u.accountRepo.GetByID(accID)
+	if err != nil {
+		return
+	}
 	acc = *accAux
 	return
 }
@@ -49,6 +52,9 @@ func (u *accountUsecases) GetByID(ID string) (acc entity.Account, err error) {
 // GetByUserID implements the AccountUsecases interface method.
 func (u *accountUsecases) GetByUserID(userID int64) (acc entity.Account, err error) {
 	accAux, err := u.accountRepo.GetByUserID(userID)
+	if err != nil {
+		return
+	}
 	acc = *accAux
 	return
 }
