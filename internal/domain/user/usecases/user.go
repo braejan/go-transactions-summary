@@ -26,14 +26,16 @@ func NewUserUseCases(userRepo repository.UserRepository) (usecases UserUseCases,
 }
 
 // GetByID implements the UserUseCases interface method.
-func (u *userUsecases) GetByID(ID int64) (user *entity.User, err error) {
-	user, err = u.userRepo.GetByID(ID)
+func (u *userUsecases) GetByID(ID int64) (user entity.User, err error) {
+	userAux, err := u.userRepo.GetByID(ID)
+	user = *userAux
 	return
 }
 
 // GetByEmail implements the UserUseCases interface method.
-func (u *userUsecases) GetByEmail(email string) (user *entity.User, err error) {
-	user, err = u.userRepo.GetByEmail(email)
+func (u *userUsecases) GetByEmail(email string) (user entity.User, err error) {
+	userAux, err := u.userRepo.GetByEmail(email)
+	user = *userAux
 	return
 }
 

@@ -27,4 +27,6 @@ var (
 	ErrProcessingAccountID = errors.New("error processing account ID")
 	// ErrAccountAlreadyCreated is returned when an account is already created.
 	ErrAccountAlreadyCreated = errors.New("account already created")
+	// ErrNilAccountUseCases is returned when an account use cases is nil.
+	ErrNilAccountUseCases = errors.New("account use cases is nil")
 )

@@ -33,4 +33,8 @@ var (
 	ErrQueryingTransactionsByOrigin = errors.New("error querying transactions by origin")
 	// ErrScanningDebitsByAccountID
 	ErrScanningDebitsByAccountID = errors.New("error scanning debits by account ID")
+	// ErrNilTransactionRepo is the error returned when the transaction repository is nil.
+	ErrNilTransactionRepo = errors.New("transaction repository is nil")
+	// ErrNilTransactionUseCases is the error returned when the transaction use cases is nil.
+	ErrNilTransactionUseCases = errors.New("transaction use cases is nil")
 )

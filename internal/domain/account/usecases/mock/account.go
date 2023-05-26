@@ -17,15 +17,15 @@ func NewMockAccountUseCases() usecases.AccountUseCases {
 }
 
 // GetByID provides a mock function with given fields: ID
-func (_m *mockAccountUseCases) GetByID(ID string) (acc *entity.Account, err error) {
+func (_m *mockAccountUseCases) GetByID(ID string) (acc entity.Account, err error) {
 	ret := _m.Called(ID)
 
-	var r0 *entity.Account
-	if rf, ok := ret.Get(0).(func(string) *entity.Account); ok {
+	var r0 entity.Account
+	if rf, ok := ret.Get(0).(func(string) entity.Account); ok {
 		r0 = rf(ID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Account)
+			r0 = ret.Get(0).(entity.Account)
 		}
 	}
 
@@ -40,16 +40,14 @@ func (_m *mockAccountUseCases) GetByID(ID string) (acc *entity.Account, err erro
 }
 
 // GetByUserID provides a mock function with given fields: userID
-func (_m *mockAccountUseCases) GetByUserID(userID int64) (acc *entity.Account, err error) {
+func (_m *mockAccountUseCases) GetByUserID(userID int64) (acc entity.Account, err error) {
 	ret := _m.Called(userID)
 
-	var r0 *entity.Account
-	if rf, ok := ret.Get(0).(func(int64) *entity.Account); ok {
+	var r0 entity.Account
+	if rf, ok := ret.Get(0).(func(int64) entity.Account); ok {
 		r0 = rf(userID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.Account)
-		}
+		r0 = ret.Get(0).(entity.Account)
 	}
 
 	var r1 error

@@ -59,7 +59,7 @@ func TestGetByIDSucess(t *testing.T) {
 	// And a user usecases
 	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a entity.User
-	user := &entity.User{
+	user := entity.User{
 		ID:    int64(1),
 		Name:  "John Doe",
 		Email: "john.doe@amazinemail.com",
@@ -103,7 +103,7 @@ func TestGetByEmailSucess(t *testing.T) {
 	// And a user usecases
 	userUsecases, _ := usecases.NewUserUseCases(mockedUserRepo)
 	// And a entity.User
-	user := &entity.User{
+	user := entity.User{
 		ID:    int64(1),
 		Name:  "John Doe",
 		Email: "john.doe@amazinemail.com",

@@ -25,4 +25,6 @@ var (
 	ErrScanningUserByEmail = errors.New("error scanning user by email")
 	// ErrNilUser is the error returned when the user is nil.
 	ErrNilUser = errors.New("user is nil")
+	// ErrNilUserUseCases is the error returned when the user use cases is nil.
+	ErrNilUserUseCases = errors.New("user use cases is nil")
 )

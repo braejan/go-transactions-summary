@@ -35,20 +35,21 @@ func NewAccountUseCases(accountRepo accRepo.AccountRepository, usrRepo userRepo.
 // Usecases interface implementation:
 
 // GetByID implements the AccountUsecases interface method.
-func (u *accountUsecases) GetByID(ID string) (acc *entity.Account, err error) {
+func (u *accountUsecases) GetByID(ID string) (acc entity.Account, err error) {
 	accID, err := uuid.Parse(ID)
 	if err != nil {
-		acc = nil
 		err = account.ErrProcessingAccountID
 		return
 	}
-	acc, err = u.accountRepo.GetByID(accID)
+	accAux, err := u.accountRepo.GetByID(accID)
+	acc = *accAux
 	return
 }
 
 // GetByUserID implements the AccountUsecases interface method.
-func (u *accountUsecases) GetByUserID(userID int64) (acc *entity.Account, err error) {
-	acc, err = u.accountRepo.GetByUserID(userID)
+func (u *accountUsecases) GetByUserID(userID int64) (acc entity.Account, err error) {
+	accAux, err := u.accountRepo.GetByUserID(userID)
+	acc = *accAux
 	return
 }
 

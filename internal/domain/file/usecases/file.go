@@ -13,34 +13,52 @@ import (
 	acUsecases "github.com/braejan/go-transactions-summary/internal/domain/account/usecases"
 	fileEntity "github.com/braejan/go-transactions-summary/internal/domain/file/entity"
 	txEntity "github.com/braejan/go-transactions-summary/internal/domain/transaction/entity"
+	txUsecases "github.com/braejan/go-transactions-summary/internal/domain/transaction/usecases"
+	txUtil "github.com/braejan/go-transactions-summary/internal/domain/transaction/util"
 	userUsecases "github.com/braejan/go-transactions-summary/internal/domain/user/usecases"
+	voAccount "github.com/braejan/go-transactions-summary/internal/valueobject/account"
 	voFile "github.com/braejan/go-transactions-summary/internal/valueobject/file"
+	voTransaction "github.com/braejan/go-transactions-summary/internal/valueobject/transaction"
 	voUser "github.com/braejan/go-transactions-summary/internal/valueobject/user"
 )
 
 // localFileUseCases struct implements the FileUseCases interface.
 type localFileUseCases struct {
-	userUseCases    userUsecases.UserUseCases
-	accountUseCases acUsecases.AccountUseCases
+	userUseCases        userUsecases.UserUseCases
+	accountUseCases     acUsecases.AccountUseCases
+	transactionUseCases txUsecases.TransactionUseCases
 }
 
 // NewLocalFileUseCases returns a new localFileUseCases instance.
-func NewLocalFileUseCases(accountUsecases acUsecases.AccountUseCases) (useCases *localFileUseCases, err error) {
-	if accountUsecases == nil {
-		err = voFile.ErrAccountUseCasesIsEmpty
+func NewLocalFileUseCases(
+	userUseCases userUsecases.UserUseCases,
+	accountUseCases acUsecases.AccountUseCases,
+	transactionUseCases txUsecases.TransactionUseCases,
+) (useCases FileUseCases, err error) {
+	if userUseCases == nil {
+		err = voUser.ErrNilUserUseCases
+		return
+	}
+	if accountUseCases == nil {
+		err = voAccount.ErrNilAccountUseCases
+		return
+	}
+	if transactionUseCases == nil {
+		err = voTransaction.ErrNilTransactionUseCases
 		return
 	}
 	useCases = &localFileUseCases{
-		accountUseCases: accountUsecases,
+		userUseCases:        userUseCases,
+		accountUseCases:     accountUseCases,
+		transactionUseCases: transactionUseCases,
 	}
 	return
 }
 
 // ReadFile reads the file from the given path.
-func (useCases *localFileUseCases) ReadFile(file *fileEntity.TxFile, isS3 bool) (txs []*txEntity.Transaction, err error) {
+func (useCases *localFileUseCases) ReadAndProcessFile(file fileEntity.TxFile, isS3 bool) (err error) {
 	err = useCases.CheckFile(file, isS3)
 	if err != nil {
-		txs = nil
 		return
 	}
 	// Open the file. Omit validation previously done.
@@ -49,16 +67,17 @@ func (useCases *localFileUseCases) ReadFile(file *fileEntity.TxFile, isS3 bool) 
 	// Create a new reader.
 	reader := csv.NewReader(osFile)
 	// Read the file registers.
-	txs, err = useCases.readFileRegisters(reader, file.Name)
+	txsAux, err := useCases.readFileRegisters(reader, file.Name)
+	if err != nil {
+		return
+	}
+	txs := txUtil.ArrayTxMemoryToArrayValue(txsAux)
+	err = useCases.createTransactions(txs)
 	return
 }
 
 // CheckFile checks if is a valid structured file.
-func (useCases *localFileUseCases) CheckFile(file *fileEntity.TxFile, isS3 bool) (err error) {
-	if file == nil {
-		err = voFile.ErrTxFileIsEmpty
-		return
-	}
+func (useCases *localFileUseCases) CheckFile(file fileEntity.TxFile, isS3 bool) (err error) {
 	if !isS3 {
 		osFile, err := useCases.openOSFile(file.Path)
 		if err != nil {
@@ -184,7 +203,7 @@ func (useCases *localFileUseCases) checkUser(ID int64) (err error) {
 
 func (useCases *localFileUseCases) checkAccountByUserID(userID int64) (account *acEntity.Account, err error) {
 	// Check if the account exists.
-	account, err = useCases.accountUseCases.GetByUserID(userID)
+	accAux, err := useCases.accountUseCases.GetByUserID(userID)
 	if err != nil && err == voUser.ErrUserNotFound {
 		// Create a new account.
 		err = useCases.accountUseCases.Create(userID)
@@ -192,10 +211,23 @@ func (useCases *localFileUseCases) checkAccountByUserID(userID int64) (account *
 			account = nil
 			return
 		}
-		account, err = useCases.accountUseCases.GetByUserID(userID)
+		accAux, err = useCases.accountUseCases.GetByUserID(userID)
 	} else if err != nil {
 		account = nil
 		return
+	}
+	account = &accAux
+	return
+}
+
+func (useCases *localFileUseCases) createTransactions(txs []txEntity.Transaction) (err error) {
+	// TODO: If process fails at some point, the file should processed partially.
+	// Insert the transactions.
+	for _, tx := range txs {
+		err = useCases.transactionUseCases.Create(tx)
+		if err != nil {
+			return
+		}
 	}
 	return
 }
