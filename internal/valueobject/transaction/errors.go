@@ -31,4 +31,6 @@ var (
 	ErrEmptyOrigin = errors.New("origin is empty")
 	// ErrQueryingTransactionsByOrigin is the error returned when querying transactions by origin.
 	ErrQueryingTransactionsByOrigin = errors.New("error querying transactions by origin")
+	// ErrScanningDebitsByAccountID
+	ErrScanningDebitsByAccountID = errors.New("error scanning debits by account ID")
 )

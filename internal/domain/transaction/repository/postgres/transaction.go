@@ -145,6 +145,9 @@ func (postgresRepo *postgresTransactionRepository) GetDebitsByAccountID(accountI
 		return
 	}
 	txs, err = rows2Transactions(rows)
+	if err != nil {
+		err = transaction.ErrScanningDebitsByAccountID
+	}
 	return
 }
 

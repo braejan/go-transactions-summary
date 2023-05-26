@@ -469,3 +469,164 @@ func TestGetCreditsByAccountIDSucess(t *testing.T) {
 	assert.Equal(t, 3, len(txs))
 	assert.Equal(t, -300.0, txs[2].Amount)
 }
+
+// TestGetDebitsByAccountIDErrOpening tests the error returned when opening the database.
+func TestGetDebitsByAccountIDErrOpening(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid uuid.UUID accountID.
+	accountID := uuid.New()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(nil, voPostgres.ErrOpeningDatabase)
+	// When getting a account by ID.
+	_, err = txRepo.GetDebitsByAccountID(accountID)
+	// Then the error returned is ErrOpening.
+	assert.NotNil(t, err)
+	assert.Equal(t, voPostgres.ErrOpeningDatabase, err)
+}
+
+// TestGetDebitsByAccountErrBeginTx tests the error returned when beginning the transaction.
+func TestGetDebitsByAccountErrBeginTx(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid uuid.UUID accountID.
+	accountID := uuid.New()
+	// And a sqlmock database.
+	db, _, _ := sqlmock.New()
+	defer db.Close()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	// And a mocked response when calling Close.
+	dbBaseMocked.On("Close", db).Return(nil)
+	// And a mocked response when calling BeginTx.
+	dbBaseMocked.On("BeginTx", db).Return(nil, voPostgres.ErrBeginningTransaction)
+	// When getting a account by ID.
+	_, err = txRepo.GetDebitsByAccountID(accountID)
+	// Then the error returned is ErrBeginningTransaction.
+	assert.NotNil(t, err)
+	assert.Equal(t, voPostgres.ErrBeginningTransaction, err)
+}
+
+// TestGetDebitsByAccountIDErrQuerying tests the error returned when querying the database.
+func TestGetDebitsByAccountIDErrQuerying(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid uuid.UUID accountID.
+	accountID := uuid.New()
+	// And a sqlmock database.
+	db, dbMocked, _ := sqlmock.New()
+	dbMocked.ExpectBegin()
+	defer db.Close()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	// And a mocked response when calling Close.
+	dbBaseMocked.On("Close", db).Return(nil)
+	// And a mocked response when calling BeginTx.
+	tx, _ := db.BeginTx(context.Background(), nil)
+	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	dbBaseMocked.On(
+		"Query",
+		tx,
+		"SELECT id, accountid, amount, date, origin FROM transactions WHERE accountid = $1 AND operation = 'debit'",
+		[]interface{}{accountID}).Return(nil, voPostgres.ErrQueryingDatabase)
+	// When getting a account by ID.
+	_, err = txRepo.GetDebitsByAccountID(accountID)
+	// Then the error returned is ErrQueryingDatabase.
+	assert.NotNil(t, err)
+	assert.Equal(t, transaction.ErrQueryingDebitsByAccountID, err)
+}
+
+// TestGetDebitsByAccountIDErrScanning tests the error returned when scanning the database response.
+func TestGetDebitsByAccountIDErrScanning(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBase := voPostgres.NewBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid uuid.UUID accountID.
+	accountID := uuid.New()
+	// And a sqlmock database.
+	db, dbMocked, _ := sqlmock.New()
+	dbMocked.ExpectBegin()
+	defer db.Close()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	// And a mocked response when calling Close.
+	dbBaseMocked.On("Close", db).Return(nil)
+	// And a mocked response when calling BeginTx.
+	tx, _ := db.BeginTx(context.Background(), nil)
+	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	expected := sqlmock.NewRows([]string{"column1", "column2"})
+	expected.AddRow("invalid", "txns.csv")
+	dbMocked.ExpectQuery("SELECT (.+) FROM transactions WHERE accountid = (.+) AND operation = 'debit'").WithArgs(accountID).WillReturnRows(expected)
+	rows, err := dbBase.Query(tx, "SELECT id, accountid, amount, date, origin FROM transactions WHERE accountid = $1 AND operation = 'debit'", accountID)
+	assert.Nil(t, err)
+	dbBaseMocked.On(
+		"Query",
+		tx,
+		"SELECT id, accountid, amount, date, origin FROM transactions WHERE accountid = $1 AND operation = 'debit'",
+		[]interface{}{accountID}).Return(rows, nil)
+	// When getting a account by ID.
+	_, err = txRepo.GetDebitsByAccountID(accountID)
+	// Then the error returned is ErrScanning.
+	assert.NotNil(t, err)
+	assert.Equal(t, transaction.ErrScanningDebitsByAccountID, err)
+}
+
+// TestGetDebitsByAccountIDSucess tests the success in getting the debits by account ID.
+func TestGetDebitsByAccountIDSucess(t *testing.T) {
+	// Given a valid configuration.
+	configuration := voPostgres.GetPostgresConfigurationFromEnv()
+	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBase := voPostgres.NewBasePostgresDatabase()
+	// And a valid transaction repository.
+	txRepo, err := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	assert.Nil(t, err)
+	// And a valid uuid.UUID accountID.
+	accountID := uuid.New()
+	// And a sqlmock database.
+	db, dbMocked, _ := sqlmock.New()
+	dbMocked.ExpectBegin()
+	defer db.Close()
+	// And a mocked response when calling Open.
+	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	// And a mocked response when calling Close.
+	dbBaseMocked.On("Close", db).Return(nil)
+	// And a mocked response when calling BeginTx.
+	tx, _ := db.BeginTx(context.Background(), nil)
+	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	expected := sqlmock.NewRows([]string{"id", "accountid", "amount", "date", "origin"})
+	expected.AddRow(uuid.New(), accountID, 100.00, time.Now(), "txns.csv")
+	expected.AddRow(uuid.New(), accountID, 200.00, time.Now(), "txns.csv")
+	expected.AddRow(uuid.New(), accountID, -300.00, time.Now(), "txns.csv")
+	dbMocked.ExpectQuery("SELECT (.+) FROM transactions WHERE accountid = (.+) AND operation = 'debit'").WithArgs(accountID).WillReturnRows(expected)
+	rows, err := dbBase.Query(tx, "SELECT id, accountid, amount, date, origin FROM transactions WHERE accountid = $1 AND operation = 'debit'", accountID)
+	assert.Nil(t, err)
+	dbBaseMocked.On(
+		"Query",
+		tx,
+		"SELECT id, accountid, amount, date, origin FROM transactions WHERE accountid = $1 AND operation = 'debit'",
+		[]interface{}{accountID}).Return(rows, nil)
+	// When getting a account by ID.
+	txs, err := txRepo.GetDebitsByAccountID(accountID)
+	// Then the error returned is Nil.
+	assert.Nil(t, err)
+	assert.NotNil(t, txs)
+	assert.Equal(t, 3, len(txs))
+	assert.Equal(t, -300.00, txs[2].Amount)
+
+}
