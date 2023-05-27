@@ -1,4 +1,4 @@
-# go-transactions-summary
+# Transaction Summary - A Golang DDD implementation.
 Este proyecto es una aplicación en Golang que procesa un archivo CSV que contiene transacciones y las almacena en una base de datos. Además, envía un correo electrónico al usuario con un resumen de sus transacciones.
 
 ## Requerimientos
@@ -12,15 +12,39 @@ Este proyecto es una aplicación en Golang que procesa un archivo CSV que contie
 ## Instalación
 
 1. Clona este repositorio en tu máquina local.
-2. Configura la conexión a la base de datos en el archivo `config.go`.
-3. Configura las credenciales de envío de correo electrónico en el archivo `config.go`.
-4. Ejecuta el comando `go run main.go` para iniciar la aplicación.
+2. Ubica tu terminal en el directorio `infraestructure/postgres`.
+### Construir la base de datos (default):
+
+```console
+docker build -t summary-db-image .
+docker run -d --name summary-db -p 5432:5432 summary-db-image
+```
+ #### No te gustan las cosas por defecto?
+Puedes entrar a este link oficial de [postgres en docker](https://hub.docker.com/_/postgres) para construir tu base de datos personalizada.
+3. Ubica tu terminal en la raíz del proyecto.
+```console
+cd ../..
+```
+### Construir la imagen del servicio REST File:
+```console
+docker build -t summary-image .
+docker run -d --name file-rest-service -p 8080:8080 summary-image
+```
 
 ## Uso
+El servicio `/loadfile` permite cargar un archivo CSV en el servidor. Para cargar un archivo, puedes utilizar el siguiente comando curl:
 
-1. Coloca el archivo CSV con las transacciones en la carpeta `data`.
-2. Ejecuta la aplicación y espera a que procese el archivo.
-3. Una vez completado, recibirás un correo electrónico con el resumen de tus transacciones.
+```shell
+curl -X POST -F "file=@/ruta/al/archivo.csv" -F "filename=nombre_archivo.csv" http://localhost:8080/loadfile
+```
+Asegúrate de reemplazar /ruta/al/archivo.csv con la ruta completa de tu archivo CSV y nombre_archivo.csv con el nombre deseado para el archivo.
+
+Es importante tener en cuenta que ambos parámetros son requeridos:
+
+    El parámetro file debe especificar la ubicación del archivo a cargar utilizando el prefijo @.
+    El parámetro filename debe contener el nombre que deseas asignar al archivo.
+
+Recuerda que el servicio `/loadfile` está diseñado para aceptar archivos CSV y realizar el procesamiento correspondiente. Asegúrate de proporcionar un archivo válido en formato CSV para obtener los resultados esperados.
 
 ## Contribución
 
