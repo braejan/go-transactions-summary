@@ -38,7 +38,7 @@ func (postgresRepo *postgresUserRepository) GetByID(ID int64) (user *entity.User
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
-	defer tx.Rollback()
+	defer postgresRepo.baseDB.Rollback(tx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -79,7 +79,7 @@ func (postgresRepo *postgresUserRepository) GetByEmail(email string) (user *enti
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
-	defer tx.Rollback()
+	defer postgresRepo.baseDB.Rollback(tx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -122,7 +122,7 @@ func (postgresRepo *postgresUserRepository) Create(user *entity.User) (err error
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
-	defer tx.Rollback()
+	defer postgresRepo.baseDB.Rollback(tx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -154,7 +154,7 @@ func (postgresRepo *postgresUserRepository) Update(user *entity.User) (err error
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
-	defer tx.Rollback()
+	defer postgresRepo.baseDB.Rollback(tx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
