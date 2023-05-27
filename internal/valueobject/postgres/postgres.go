@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"os"
 	"strconv"
+
+	_ "github.com/lib/pq"
 )
 
 type PostgresDatabase interface {

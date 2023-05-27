@@ -39,6 +39,7 @@ func (postgresRepo *postgresAccountRepository) GetByID(ID uuid.UUID) (acc *entit
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
+	defer tx.Rollback()
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -75,6 +76,7 @@ func (postgresRepo *postgresAccountRepository) GetByUserID(userID int64) (acc *e
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
+	defer tx.Rollback()
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -117,6 +119,7 @@ func (postgresRepo *postgresAccountRepository) Create(acc *entity.Account) (err 
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
+	defer tx.Rollback()
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -148,6 +151,7 @@ func (postgresRepo *postgresAccountRepository) Update(acc *entity.Account) (err 
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
+	defer tx.Rollback()
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
