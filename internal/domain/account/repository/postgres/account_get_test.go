@@ -9,14 +9,15 @@ import (
 	"github.com/braejan/go-transactions-summary/internal/domain/account/repository/postgres"
 	"github.com/braejan/go-transactions-summary/internal/valueobject/account"
 	voPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres"
-	"github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
+	mockvoPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // TestGetByIDErrorOpeningDatabase tests the GetByID method when an error occurs while opening the database.
 func TestGetByIDErrorOpeningDatabase(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account ID.
@@ -32,7 +33,7 @@ func TestGetByIDErrorOpeningDatabase(t *testing.T) {
 
 // TestGetByIDErrorBeginningTransaction tests the GetByID method when an error occurs while beginning a transaction.
 func TestGetByIDErrorBeginningTransaction(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account ID.
@@ -46,6 +47,8 @@ func TestGetByIDErrorBeginningTransaction(t *testing.T) {
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(nil, errors.New("postgres: error beginning transaction"))
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// When GetByID is called.
 	_, err := accountRepo.GetByID(ID)
 	// Then the error returned should be ErrBeginningTransaction.
@@ -55,7 +58,7 @@ func TestGetByIDErrorBeginningTransaction(t *testing.T) {
 
 // TestGetByIDErrorQueryingAccountByID tests the GetByID method when an error occurs while querying the account by ID.
 func TestGetByIDErrorQueryingAccountByID(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account ID.
@@ -70,6 +73,8 @@ func TestGetByIDErrorQueryingAccountByID(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Query.
 	dbBase.On("Query", tx, "SELECT id, balance, userid, active FROM accounts WHERE id = $1", []interface{}{ID}).Return(nil, errors.New("postgres: error querying account by ID"))
 	// When GetByID is called.
@@ -84,7 +89,7 @@ func TestGetByIDErrorScanningAccountByID(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := uuid.New()
 	// And a mocked database.
@@ -97,6 +102,8 @@ func TestGetByIDErrorScanningAccountByID(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -119,7 +126,7 @@ func TestGetByIDSuccess(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account ID.
 	ID := uuid.New()
 	// And a mocked database.
@@ -132,6 +139,8 @@ func TestGetByIDSuccess(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -158,7 +167,7 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account ID.
 	ID := uuid.New()
 	// And a mocked database.
@@ -171,6 +180,8 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -195,7 +206,7 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 
 // TestGetByUserIDErrorOpeningDatabase tests the GetByUserID method when the database cannot be opened.
 func TestGetByUserIDErrorOpeningDatabase(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account ID.
@@ -211,7 +222,7 @@ func TestGetByUserIDErrorOpeningDatabase(t *testing.T) {
 
 // TestGetByUserIDErrorBeginningTransaction tests the GetByUserID method when the transaction cannot be started.
 func TestGetByUserIDErrorBeginningTransaction(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account ID.
@@ -225,6 +236,8 @@ func TestGetByUserIDErrorBeginningTransaction(t *testing.T) {
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(nil, errors.New("postgres: error beginning transaction"))
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// When GetByUserID is called.
 	_, err := accountRepo.GetByUserID(ID)
 	// Then the error returned should be ErrBeginningTransaction.
@@ -234,7 +247,7 @@ func TestGetByUserIDErrorBeginningTransaction(t *testing.T) {
 
 // TestGetByUserIDErrorQueryingAccountByID tests the GetByUserID method when the account cannot be queried.
 func TestGetByUserIDErrorQueryingAccountByID(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account ID.
@@ -249,6 +262,8 @@ func TestGetByUserIDErrorQueryingAccountByID(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -265,7 +280,7 @@ func TestGetByUserIDErrorScanningAccountByID(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := int64(1)
 	// And a mocked database.
@@ -278,6 +293,8 @@ func TestGetByUserIDErrorScanningAccountByID(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -300,7 +317,7 @@ func TestGetByUserIDSuccess(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account ID.
 	ID := uuid.New()
 	userID := int64(1)
@@ -314,6 +331,8 @@ func TestGetByUserIDSuccess(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -340,7 +359,7 @@ func TestGetByUserIDErrEmptyResponse(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account ID.
 	userID := int64(1)
 	// And a mocked database.
@@ -353,6 +372,8 @@ func TestGetByUserIDErrEmptyResponse(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.

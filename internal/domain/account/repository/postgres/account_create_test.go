@@ -8,13 +8,14 @@ import (
 	"github.com/braejan/go-transactions-summary/internal/domain/account/repository/postgres"
 	"github.com/braejan/go-transactions-summary/internal/valueobject/account"
 	voPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres"
-	"github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
+	mockvoPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // TestCreateErrAccountNil tests the error returned when the account is nil.
 func TestCreateErrAccountNil(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// When creating a account.
@@ -27,7 +28,7 @@ func TestCreateErrAccountNil(t *testing.T) {
 
 // TestCreateErrOpeningDatabase tests the error returned when opening the database.
 func TestCreateErrOpeningDatabase(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
@@ -43,19 +44,22 @@ func TestCreateErrOpeningDatabase(t *testing.T) {
 
 // TestCreateErrBeginningTransaction tests the error returned when beginning the transaction.
 func TestCreateErrBeginningTransaction(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
 	account := entity.NewAccount(int64(1))
 	// And a mocked database.
-	db, _, _ := sqlmock.New()
+	db, dbMock, _ := sqlmock.New()
+	dbMock.ExpectBegin()
 	// And a mocked response when calling Open.
 	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Begin.
 	dbBase.On("BeginTx", db).Return(nil, voPostgres.ErrBeginningTransaction)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// When creating a account.
 	err := accountRepo.Create(account)
 	// Then the error returned is ErrBeginningTransaction.
@@ -65,7 +69,7 @@ func TestCreateErrBeginningTransaction(t *testing.T) {
 
 // TestCreateErrExec tests the error returned when executing the query.
 func TestCreateErrExec(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
@@ -92,7 +96,7 @@ func TestCreateErrExec(t *testing.T) {
 
 // TestCreateErrCommittingTransaction tests the error returned when committing the transaction.
 func TestCreateErrCommittingTransaction(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
@@ -106,6 +110,8 @@ func TestCreateErrCommittingTransaction(t *testing.T) {
 	// And a mocked response when calling Begin.
 	tx, _ := db.Begin()
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Exec.
 	dbBase.On("Exec", tx, "INSERT INTO accounts (id, balance, userid, active) VALUES ($1, $2, $3, $4)", []interface{}{acc.ID, acc.Balance, acc.UserID, acc.Active}).Return(nil, nil)
 	// And a mocked response when calling Commit.
@@ -119,7 +125,7 @@ func TestCreateErrCommittingTransaction(t *testing.T) {
 
 // TestCreateSuccess tests the success when creating a account.
 func TestCreateSuccess(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
@@ -133,6 +139,8 @@ func TestCreateSuccess(t *testing.T) {
 	// And a mocked response when calling Begin.
 	tx, _ := db.Begin()
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Exec.
 	dbBase.On("Exec", tx, "INSERT INTO accounts (id, balance, userid, active) VALUES ($1, $2, $3, $4)", []interface{}{acc.ID, acc.Balance, acc.UserID, acc.Active}).Return(nil, nil)
 	// And a mocked response when calling Commit.

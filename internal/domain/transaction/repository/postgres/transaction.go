@@ -41,6 +41,7 @@ func (postgresRepo *postgresTransactionRepository) GetByID(ID uuid.UUID) (tx *en
 	}
 	defer postgresRepo.baseDB.Close(db)
 	dbTx, err := postgresRepo.baseDB.BeginTx(db)
+	defer postgresRepo.baseDB.Rollback(dbTx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -73,6 +74,7 @@ func (postgresRepo *postgresTransactionRepository) GetByAccountID(accountID uuid
 	}
 	defer postgresRepo.baseDB.Close(db)
 	dbTx, err := postgresRepo.baseDB.BeginTx(db)
+	defer postgresRepo.baseDB.Rollback(dbTx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -99,6 +101,7 @@ func (postgresRepo *postgresTransactionRepository) GetCreditsByAccountID(account
 	}
 	defer postgresRepo.baseDB.Close(db)
 	dbTx, err := postgresRepo.baseDB.BeginTx(db)
+	defer postgresRepo.baseDB.Rollback(dbTx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -128,6 +131,7 @@ func (postgresRepo *postgresTransactionRepository) GetDebitsByAccountID(accountI
 	}
 	defer postgresRepo.baseDB.Close(db)
 	dbTx, err := postgresRepo.baseDB.BeginTx(db)
+	defer postgresRepo.baseDB.Rollback(dbTx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -161,6 +165,7 @@ func (postgresRepo *postgresTransactionRepository) GetTransactionsByOrigin(origi
 	}
 	defer postgresRepo.baseDB.Close(db)
 	dbTx, err := postgresRepo.baseDB.BeginTx(db)
+	defer postgresRepo.baseDB.Rollback(dbTx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return
@@ -191,6 +196,7 @@ func (postgresRepo *postgresTransactionRepository) Create(tx *entity.Transaction
 	}
 	defer postgresRepo.baseDB.Close(db)
 	dbTx, err := postgresRepo.baseDB.BeginTx(db)
+	defer postgresRepo.baseDB.Rollback(dbTx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
 		return

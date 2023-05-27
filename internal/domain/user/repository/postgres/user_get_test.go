@@ -8,15 +8,16 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/braejan/go-transactions-summary/internal/domain/user/repository/postgres"
 	voPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres"
-	"github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
+	mockvoPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
 	"github.com/braejan/go-transactions-summary/internal/valueobject/user"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // TestGetByIDErrorOpeningDatabase tests the GetByID function
 // when the database cannot be opened.
 func TestGetByIDErrorOpeningDatabase(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user ID.
@@ -33,7 +34,7 @@ func TestGetByIDErrorOpeningDatabase(t *testing.T) {
 // TestGetByIDErrorBeginningTransaction tests the GetByID function
 // when the transaction cannot be started.
 func TestGetByIDErrorBeginningTransaction(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user ID.
@@ -45,6 +46,8 @@ func TestGetByIDErrorBeginningTransaction(t *testing.T) {
 	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(nil, errors.New("postgres: error beginning transaction"))
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// When GetByID is called.
@@ -58,7 +61,7 @@ func TestGetByIDErrorBeginningTransaction(t *testing.T) {
 // TestGetByIDErrorQuerying tests the GetByID function
 // when the query cannot be executed.
 func TestGetByIDErrorQuerying(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user ID.
@@ -71,6 +74,8 @@ func TestGetByIDErrorQuerying(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -88,7 +93,7 @@ func TestGetByIDErrorScanning(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := int64(1)
 	// And a mocked database.
@@ -101,6 +106,8 @@ func TestGetByIDErrorScanning(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -124,7 +131,7 @@ func TestGetByIDSuccess(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := int64(1)
 	// And a mocked database.
@@ -137,6 +144,8 @@ func TestGetByIDSuccess(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -162,7 +171,7 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := int64(1)
 	// And a mocked database.
@@ -175,6 +184,8 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -194,7 +205,7 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 
 // TestGetByEmailErrorOpeningDatabase results in an error when the database cannot be opened.
 func TestGetByEmailErrorOpeningDatabase(t *testing.T) {
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
 	// And a mocked response when calling Open.
@@ -210,7 +221,7 @@ func TestGetByEmailErrorOpeningDatabase(t *testing.T) {
 
 // TestGetByEmailErrorBeginningTransaction results in an error when the transaction cannot be started.
 func TestGetByEmailErrorBeginningTransaction(t *testing.T) {
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
 	// And a mocked database.
@@ -220,6 +231,8 @@ func TestGetByEmailErrorBeginningTransaction(t *testing.T) {
 	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	dbBaseMocked.On("BeginTx", db).Return(nil, errors.New("error beginning transaction"))
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a valid user repository.
@@ -233,7 +246,7 @@ func TestGetByEmailErrorBeginningTransaction(t *testing.T) {
 
 // TestGetByEmailErrorQuerying results in an error when the query cannot be executed.
 func TestGetByEmailErrorQuerying(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid email.
@@ -246,6 +259,8 @@ func TestGetByEmailErrorQuerying(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -262,7 +277,7 @@ func TestGetByEmailErrorScanning(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
 	// And a mocked database.
@@ -275,6 +290,8 @@ func TestGetByEmailErrorScanning(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -297,7 +314,7 @@ func TestGetByEmailSuccess(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
 	// And a mocked database.
@@ -310,6 +327,8 @@ func TestGetByEmailSuccess(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.
@@ -336,7 +355,7 @@ func TestGetByEmailErrEmptyResponse(t *testing.T) {
 	// Given a valid configuration.
 	configuration := voPostgres.NewPostgresConfigurationFromEnv()
 	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.deo@amazingemail.com"
 	// And a mocked database.
@@ -349,6 +368,8 @@ func TestGetByEmailErrEmptyResponse(t *testing.T) {
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response when calling Query.

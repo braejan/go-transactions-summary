@@ -17,10 +17,11 @@ Este proyecto es una aplicación en Golang que procesa un archivo CSV que contie
 
 ```console
 docker build -t summary-db-image .
-docker run -d --name summary-db -p 5432:5432 summary-db-image
+docker run --net=bridge -d --name summary-db -p 5432:5432 summary-db-image
 ```
  #### No te gustan las cosas por defecto?
 Puedes entrar a este link oficial de [postgres en docker](https://hub.docker.com/_/postgres) para construir tu base de datos personalizada.
+
 3. Ubica tu terminal en la raíz del proyecto.
 ```console
 cd ../..
@@ -28,7 +29,7 @@ cd ../..
 ### Construir la imagen del servicio REST File:
 ```console
 docker build -t summary-image .
-docker run -d --name file-rest-service -p 8080:8080 summary-image
+docker run --net=bridge -d --name file-rest-service -p 8080:8080 summary-image
 ```
 
 ## Uso

@@ -8,14 +8,15 @@ import (
 	"github.com/braejan/go-transactions-summary/internal/domain/user/entity"
 	"github.com/braejan/go-transactions-summary/internal/domain/user/repository/postgres"
 	voPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres"
-	"github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
+	mockvoPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
 	"github.com/braejan/go-transactions-summary/internal/valueobject/user"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // TestCreateErrUserNil tests the error returned when the user is nil.
 func TestCreateErrUserNil(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// When creating a user.
@@ -27,7 +28,7 @@ func TestCreateErrUserNil(t *testing.T) {
 
 // TestCreateErrOpeningDatabase tests the error returned when opening the database.
 func TestCreateErrOpeningDatabase(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user entity.
@@ -44,7 +45,7 @@ func TestCreateErrOpeningDatabase(t *testing.T) {
 
 // TestCreateErrBeginningTransaction tests the error returned when beginning the transaction.
 func TestCreateErrBeginningTransaction(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user entity.
@@ -55,6 +56,8 @@ func TestCreateErrBeginningTransaction(t *testing.T) {
 	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(nil, voPostgres.ErrBeginningTransaction)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// When creating a user.
@@ -66,7 +69,7 @@ func TestCreateErrBeginningTransaction(t *testing.T) {
 
 // TestCreateErrExec tests the error returned when executing the query.
 func TestCreateErrExec(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user entity.
@@ -79,11 +82,11 @@ func TestCreateErrExec(t *testing.T) {
 	tx, _ := db.BeginTx(context.Background(), nil)
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	mockedDB.ExpectBegin()
 	// And a mocked response when calling Exec.
 	dbBase.On("Exec", tx, "INSERT INTO users (id, name, email) VALUES ($1, $2, $3)", []interface{}{int64(1), "John Doe", "john.doe@amazingemail.com"}).Return(nil, voPostgres.ErrExec)
-	// And a mocked response when calling Rollback.
-	dbBase.On("Rollback", tx).Return(nil)
 	mockedDB.ExpectRollback()
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
@@ -96,7 +99,7 @@ func TestCreateErrExec(t *testing.T) {
 
 // TestCreateSuccess tests the success of creating a user.
 func TestCreateSuccess(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid user repository.
 	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user entity.
@@ -109,6 +112,8 @@ func TestCreateSuccess(t *testing.T) {
 	tx, _ := db.BeginTx(context.Background(), nil)
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(tx, nil)
+	// And a mocked response when calling Rollback.
+	dbBase.On("Rollback", mock.Anything).Return(nil)
 	mockedDB.ExpectBegin()
 	// And a mocked response when calling Exec.
 	dbBase.On("Exec", tx, "INSERT INTO users (id, name, email) VALUES ($1, $2, $3)", []interface{}{int64(1), "John Doe", "john.doe@amazingemail.com"}).Return(nil, nil)

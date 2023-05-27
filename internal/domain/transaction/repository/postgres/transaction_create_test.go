@@ -8,15 +8,16 @@ import (
 	"github.com/braejan/go-transactions-summary/internal/domain/transaction/entity"
 	"github.com/braejan/go-transactions-summary/internal/domain/transaction/repository/postgres"
 	voPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres"
-	"github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
+	mockvoPostgres "github.com/braejan/go-transactions-summary/internal/valueobject/postgres/mock"
 	"github.com/braejan/go-transactions-summary/internal/valueobject/transaction"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // TestCreateWithInvalidTransaction tests the error returned when the transaction is invalid.
 func TestCreateWithInvalidTransaction(t *testing.T) {
-	dbBase := mock.NewMockBasePostgresDatabase()
+	dbBase := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	transactionRepo := postgres.NewPostgresTransactionRepository(dbBase)
 	// When creating a account .
@@ -28,7 +29,7 @@ func TestCreateWithInvalidTransaction(t *testing.T) {
 
 // TestCreateErrOpeningDatabase tests the error returned when the database cannot be opened.
 func TestCreateErrOpeningDatabase(t *testing.T) {
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a mocked response calling Open.
@@ -42,7 +43,7 @@ func TestCreateErrOpeningDatabase(t *testing.T) {
 
 // TestCreateErrBeginningTransaction tests the error returned when the transaction cannot be started.
 func TestCreateErrBeginningTransaction(t *testing.T) {
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a mocked database.
@@ -53,6 +54,8 @@ func TestCreateErrBeginningTransaction(t *testing.T) {
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response calling Begin.
 	dbBaseMocked.On("BeginTx", db).Return(nil, voPostgres.ErrBeginningTransaction)
+	// And a mocked response calling Rollback.
+	dbBaseMocked.On("Rollback", mock.Anything).Return(nil)
 	// When creating a account .
 	err := transactionRepo.Create(&entity.Transaction{})
 	// Then the error returned is ErrBeginningTransaction.
@@ -62,7 +65,7 @@ func TestCreateErrBeginningTransaction(t *testing.T) {
 
 // TestCreateErrExecutingQuery tests the error returned when the query cannot be executed.
 func TestCreateErrExecutingQuery(t *testing.T) {
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a valid origin.
@@ -104,7 +107,7 @@ func TestCreateErrExecutingQuery(t *testing.T) {
 
 // TestCreateErrCommittingTransaction tests the error returned when the transaction cannot be committed.
 func TestCreateErrCommittingTransaction(t *testing.T) {
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a valid origin.
@@ -148,7 +151,7 @@ func TestCreateErrCommittingTransaction(t *testing.T) {
 
 // TestCreateSuccess tests the success when creating a transaction.
 func TestCreateSuccess(t *testing.T) {
-	dbBaseMocked := mock.NewMockBasePostgresDatabase()
+	dbBaseMocked := mockvoPostgres.NewMockBasePostgresDatabase()
 	// And a valid account repository.
 	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a valid origin.
@@ -163,6 +166,8 @@ func TestCreateSuccess(t *testing.T) {
 	// And a mocked response calling BeginTx.
 	dbTx, _ := db.Begin()
 	dbBaseMocked.On("BeginTx", db).Return(dbTx, nil)
+	// And a mocked response calling Rollback.
+	dbBaseMocked.On("Rollback", dbTx).Return(nil)
 	// And a mocked response calling Commit.
 	dbBaseMocked.On("Commit", dbTx).Return(nil)
 	// And a valid entity.Transaction to create.
