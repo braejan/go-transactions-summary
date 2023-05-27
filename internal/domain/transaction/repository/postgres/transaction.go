@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/braejan/go-transactions-summary/internal/domain/transaction/entity"
 	"github.com/braejan/go-transactions-summary/internal/domain/transaction/repository"
@@ -13,22 +14,14 @@ import (
 
 // postgresTransactionRepository is the postgres implementation of the transaction repository.
 type postgresTransactionRepository struct {
-	configuration *postgres.PostgresConfiguration
-	baseDB        postgres.PostgresDatabase
+	baseDB postgres.PostgresDatabase
 	repository.TransactionRepository
 }
 
 // NewPostgresTransactionRepository creates a new instance of repository.TransactionRepository.
-func NewPostgresTransactionRepository(
-	configuration *postgres.PostgresConfiguration,
-	baseDB postgres.PostgresDatabase) (transactionRepo repository.TransactionRepository, err error) {
-	if configuration == nil {
-		err = postgres.ErrNilConfiguration
-		return
-	}
+func NewPostgresTransactionRepository(baseDB postgres.PostgresDatabase) (transactionRepo repository.TransactionRepository) {
 	transactionRepo = &postgresTransactionRepository{
-		configuration: configuration,
-		baseDB:        baseDB,
+		baseDB: baseDB,
 	}
 	return
 }
@@ -41,7 +34,7 @@ const (
 )
 
 func (postgresRepo *postgresTransactionRepository) GetByID(ID uuid.UUID) (tx *entity.Transaction, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -73,7 +66,7 @@ const (
 )
 
 func (postgresRepo *postgresTransactionRepository) GetByAccountID(accountID uuid.UUID) (txs []*entity.Transaction, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -99,7 +92,7 @@ const (
 )
 
 func (postgresRepo *postgresTransactionRepository) GetCreditsByAccountID(accountID uuid.UUID) (txs []*entity.Transaction, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -128,7 +121,7 @@ const (
 )
 
 func (postgresRepo *postgresTransactionRepository) GetDebitsByAccountID(accountID uuid.UUID) (txs []*entity.Transaction, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -161,7 +154,7 @@ func (postgresRepo *postgresTransactionRepository) GetTransactionsByOrigin(origi
 		err = transaction.ErrEmptyOrigin
 		return
 	}
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -183,7 +176,7 @@ func (postgresRepo *postgresTransactionRepository) GetTransactionsByOrigin(origi
 
 // Create creates a new transaction.
 const (
-	createTransaction = `INSERT INTO transactions (id, accountid, amount, date, origin) VALUES ($1, $2, $3, $4, $5)`
+	createTransaction = `INSERT INTO transactions (id, accountid, amount, date, origin, operation) VALUES ($1, $2, $3, $4, $5, $6)`
 )
 
 func (postgresRepo *postgresTransactionRepository) Create(tx *entity.Transaction) (err error) {
@@ -191,7 +184,7 @@ func (postgresRepo *postgresTransactionRepository) Create(tx *entity.Transaction
 		err = transaction.ErrNilTransaction
 		return
 	}
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -202,8 +195,13 @@ func (postgresRepo *postgresTransactionRepository) Create(tx *entity.Transaction
 		err = postgres.ErrBeginningTransaction
 		return
 	}
-	_, err = postgresRepo.baseDB.Exec(dbTx, createTransaction, tx.ID, tx.AccountID, tx.Amount, tx.Date, tx.Origin)
+	operation := "credit"
+	if tx.Amount < 0 {
+		operation = "debit"
+	}
+	_, err = postgresRepo.baseDB.Exec(dbTx, createTransaction, tx.ID, tx.AccountID, tx.Amount, tx.Date, tx.Origin, operation)
 	if err != nil {
+		log.Println("Error creating transaction in database", err)
 		_ = postgresRepo.baseDB.Rollback(dbTx)
 		err = transaction.ErrCreatingTransaction
 		return

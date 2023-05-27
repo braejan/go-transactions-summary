@@ -19,4 +19,6 @@ var (
 	ErrAccountUseCasesIsEmpty = errors.New("account use cases is empty")
 	// ErrFileIsEmpty is the error returned when the file is empty.
 	ErrFileIsEmpty = errors.New("file is empty")
+	// ErrNilFileUseCases is the error returned when the file use cases is nil.
+	ErrNilFileUseCases = errors.New("file use cases is nil")
 )

@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	"log"
+
 	"github.com/braejan/go-transactions-summary/internal/domain/account/entity"
 	accRepo "github.com/braejan/go-transactions-summary/internal/domain/account/repository"
 	userRepo "github.com/braejan/go-transactions-summary/internal/domain/user/repository"
@@ -61,6 +63,7 @@ func (u *accountUsecases) GetByUserID(userID int64) (acc entity.Account, err err
 
 // Create implements the AccountUsecases interface method.
 func (u *accountUsecases) Create(userID int64) (err error) {
+	log.Println("Creating account for user", userID)
 	// Check if the user exists.
 	_, err = u.userRepo.GetByID(userID)
 	if err != nil {

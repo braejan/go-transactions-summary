@@ -14,11 +14,9 @@ import (
 
 // TestUpdateErrUserNil tests the error returned when the user is nil.
 func TestUpdateErrUserNil(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	accountRepo, _ := postgres.NewPostgresAccountRepository(configuration, dbBase)
+	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// When updating a account.
 	err := accountRepo.Update(nil)
 	// Then the error returned is ErrNilAccount.
@@ -28,15 +26,13 @@ func TestUpdateErrUserNil(t *testing.T) {
 
 // TestUpdateErrOpeningDatabase tests the error returned when opening the database.
 func TestUpdateErrOpeningDatabase(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	accountRepo, _ := postgres.NewPostgresAccountRepository(configuration, dbBase)
+	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
 	acc := entity.NewAccount(int64(1))
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(nil, voPostgres.ErrOpeningDatabase)
+	dbBase.On("Open").Return(nil, voPostgres.ErrOpeningDatabase)
 	// When updating a account.
 	err := accountRepo.Update(acc)
 	// Then the error returned is ErrOpeningDatabase.
@@ -46,17 +42,15 @@ func TestUpdateErrOpeningDatabase(t *testing.T) {
 
 // TestUpdateErrBeginningTransaction tests the error returned when beginning the transaction.
 func TestUpdateErrBeginningTransaction(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	accountRepo, _ := postgres.NewPostgresAccountRepository(configuration, dbBase)
+	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
 	acc := entity.NewAccount(int64(1))
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Begin.
@@ -70,17 +64,15 @@ func TestUpdateErrBeginningTransaction(t *testing.T) {
 
 // TestUpdateErrUpdatingUser tests the error returned when updating the user.
 func TestUpdateErrUpdatingUser(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	accountRepo, _ := postgres.NewPostgresAccountRepository(configuration, dbBase)
+	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
 	acc := entity.NewAccount(int64(1))
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Begin.
@@ -99,17 +91,15 @@ func TestUpdateErrUpdatingUser(t *testing.T) {
 
 // TestUpdateErrCommittingTransaction tests the error returned when committing the transaction.
 func TestUpdateErrCommittingTransaction(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	accountRepo, _ := postgres.NewPostgresAccountRepository(configuration, dbBase)
+	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
 	acc := entity.NewAccount(int64(1))
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Begin.
@@ -128,17 +118,15 @@ func TestUpdateErrCommittingTransaction(t *testing.T) {
 
 // TestUpdateSuccess tests the success when updating the account.
 func TestUpdateSuccess(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	accountRepo, _ := postgres.NewPostgresAccountRepository(configuration, dbBase)
+	accountRepo := postgres.NewPostgresAccountRepository(dbBase)
 	// And a valid account entity.
 	acc := entity.NewAccount(int64(1))
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling Close.
 	dbBase.On("Close", db).Return(nil)
 	// And a mocked response when calling Begin.

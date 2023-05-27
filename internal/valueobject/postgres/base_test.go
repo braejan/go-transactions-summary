@@ -10,8 +10,10 @@ import (
 
 // TestNewBasePostgresDatabase tests the NewBasePostgresDatabase function.
 func TestNewBasePostgresDatabase(t *testing.T) {
+	// Given a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	//When call NewBasePostgresDatabase
-	postgresRepo := postgres.NewBasePostgresDatabase()
+	postgresRepo := postgres.NewBasePostgresDatabase(postgresConfig)
 	// Then return a new instance of PostgresDatabase interface implementation.
 	assert.NotNil(t, postgresRepo)
 }
@@ -22,10 +24,12 @@ func TestCloseFail(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// And a mock database that fails
 	mock.ExpectClose().WillReturnError(assert.AnError)
 	// When call Close
-	err = postgres.NewBasePostgresDatabase().Close(db)
+	err = postgres.NewBasePostgresDatabase(postgresConfig).Close(db)
 	// Then return an error
 	assert.Error(t, err)
 }
@@ -38,8 +42,10 @@ func TestCloseSuccess(t *testing.T) {
 	defer db.Close()
 	// And a mock database that succeeds
 	dbMock.ExpectClose().WillReturnError(nil)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Close
-	err = postgres.NewBasePostgresDatabase().Close(db)
+	err = postgres.NewBasePostgresDatabase(postgresConfig).Close(db)
 	// Then return no error
 	assert.NoError(t, err)
 }
@@ -52,8 +58,10 @@ func TestBeginTxFail(t *testing.T) {
 	defer db.Close()
 	// And a mock database that fails
 	dbMock.ExpectBegin().WillReturnError(assert.AnError)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call BeginTx
-	tx, err := postgres.NewBasePostgresDatabase().BeginTx(db)
+	tx, err := postgres.NewBasePostgresDatabase(postgresConfig).BeginTx(db)
 	// Then return an error
 	assert.Error(t, err)
 	assert.Nil(t, tx)
@@ -67,8 +75,10 @@ func TestBeginTxSuccess(t *testing.T) {
 	defer db.Close()
 	// And a mock database that succeeds
 	dbMock.ExpectBegin().WillReturnError(nil)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call BeginTx
-	tx, err := postgres.NewBasePostgresDatabase().BeginTx(db)
+	tx, err := postgres.NewBasePostgresDatabase(postgresConfig).BeginTx(db)
 	// Then return no error
 	assert.NoError(t, err)
 	assert.NotNil(t, tx)
@@ -86,8 +96,10 @@ func TestCommitFail(t *testing.T) {
 	// And a mocked dbTx
 	tx, err := db.Begin()
 	assert.NoError(t, err)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Commit
-	err = postgres.NewBasePostgresDatabase().Commit(tx)
+	err = postgres.NewBasePostgresDatabase(postgresConfig).Commit(tx)
 	// Then return an error
 	assert.Error(t, err)
 }
@@ -105,7 +117,9 @@ func TestCommitSuccess(t *testing.T) {
 	tx, err := db.Begin()
 	assert.NoError(t, err)
 	// When call Commit
-	err = postgres.NewBasePostgresDatabase().Commit(tx)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
+	err = postgres.NewBasePostgresDatabase(postgresConfig).Commit(tx)
 	// Then return no error
 	assert.NoError(t, err)
 }
@@ -122,8 +136,10 @@ func TestRollbackFail(t *testing.T) {
 	// And a mocked dbTx
 	tx, err := db.Begin()
 	assert.NoError(t, err)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Rollback
-	err = postgres.NewBasePostgresDatabase().Rollback(tx)
+	err = postgres.NewBasePostgresDatabase(postgresConfig).Rollback(tx)
 	// Then return an error
 	assert.Error(t, err)
 }
@@ -140,8 +156,10 @@ func TestRollbackSuccess(t *testing.T) {
 	// And a mocked dbTx
 	tx, err := db.Begin()
 	assert.NoError(t, err)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Rollback
-	err = postgres.NewBasePostgresDatabase().Rollback(tx)
+	err = postgres.NewBasePostgresDatabase(postgresConfig).Rollback(tx)
 	// Then return no error
 	assert.NoError(t, err)
 }
@@ -158,8 +176,10 @@ func TestExecFail(t *testing.T) {
 	// And a mocked dbTx
 	tx, err := db.Begin()
 	assert.NoError(t, err)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Exec
-	_, err = postgres.NewBasePostgresDatabase().Exec(tx, "test")
+	_, err = postgres.NewBasePostgresDatabase(postgresConfig).Exec(tx, "test")
 	// Then return an error
 	assert.Error(t, err)
 }
@@ -176,8 +196,10 @@ func TestExecSuccess(t *testing.T) {
 	// And a mocked dbTx
 	tx, err := db.Begin()
 	assert.NoError(t, err)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Exec
-	_, err = postgres.NewBasePostgresDatabase().Exec(tx, "test")
+	_, err = postgres.NewBasePostgresDatabase(postgresConfig).Exec(tx, "test")
 	// Then return no error
 	assert.NoError(t, err)
 }
@@ -194,8 +216,10 @@ func TestQueryFail(t *testing.T) {
 	// And a mocked dbTx
 	tx, err := db.Begin()
 	assert.NoError(t, err)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Query
-	_, err = postgres.NewBasePostgresDatabase().Query(tx, "test")
+	_, err = postgres.NewBasePostgresDatabase(postgresConfig).Query(tx, "test")
 	// Then return an error
 	assert.Error(t, err)
 }
@@ -212,8 +236,10 @@ func TestQuerySuccess(t *testing.T) {
 	// And a mocked dbTx
 	tx, err := db.Begin()
 	assert.NoError(t, err)
+	// And a default postgresq configuration
+	postgresConfig := postgres.NewDefaultPostgresConfiguration()
 	// When call Query
-	_, err = postgres.NewBasePostgresDatabase().Query(tx, "test")
+	_, err = postgres.NewBasePostgresDatabase(postgresConfig).Query(tx, "test")
 	// Then return no error
 	assert.NoError(t, err)
 }

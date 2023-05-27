@@ -16,15 +16,13 @@ import (
 // TestGetByIDErrorOpeningDatabase tests the GetByID function
 // when the database cannot be opened.
 func TestGetByIDErrorOpeningDatabase(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBase)
+	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user ID.
 	ID := int64(1)
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(nil, errors.New("postgres: error opening database"))
+	dbBase.On("Open").Return(nil, errors.New("postgres: error opening database"))
 	// When GetByID is called.
 	_, err := userRepo.GetByID(ID)
 	// Then the error returned should be ErrOpeningDatabase.
@@ -35,18 +33,16 @@ func TestGetByIDErrorOpeningDatabase(t *testing.T) {
 // TestGetByIDErrorBeginningTransaction tests the GetByID function
 // when the transaction cannot be started.
 func TestGetByIDErrorBeginningTransaction(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBase)
+	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user ID.
 	ID := int64(1)
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	defer db.Close()
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	dbBase.On("BeginTx", db).Return(nil, errors.New("postgres: error beginning transaction"))
 	// And a mocked response when calling Close.
@@ -62,18 +58,16 @@ func TestGetByIDErrorBeginningTransaction(t *testing.T) {
 // TestGetByIDErrorQuerying tests the GetByID function
 // when the query cannot be executed.
 func TestGetByIDErrorQuerying(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBase)
+	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid user ID.
 	ID := int64(1)
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	defer db.Close()
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBase.On("BeginTx", db).Return(tx, nil)
@@ -92,8 +86,8 @@ func TestGetByIDErrorQuerying(t *testing.T) {
 // when the query cannot be scanned.
 func TestGetByIDErrorScanning(t *testing.T) {
 	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
-	dbBase := voPostgres.NewBasePostgresDatabase()
+	configuration := voPostgres.NewPostgresConfigurationFromEnv()
+	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := int64(1)
@@ -103,7 +97,7 @@ func TestGetByIDErrorScanning(t *testing.T) {
 	// And a mocked transaction
 	dbMocked.ExpectBegin()
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
@@ -116,7 +110,7 @@ func TestGetByIDErrorScanning(t *testing.T) {
 	assert.Nil(t, err)
 	dbBaseMocked.On("Query", tx, "SELECT id, name, email FROM users WHERE id = $1", []interface{}{ID}).Return(rows, nil)
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByID is called.
 	_, err = userRepo.GetByID(ID)
 	// Then the error returned should be ErrScanningUser.
@@ -128,8 +122,8 @@ func TestGetByIDErrorScanning(t *testing.T) {
 // when the query is successful.
 func TestGetByIDSuccess(t *testing.T) {
 	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
-	dbBase := voPostgres.NewBasePostgresDatabase()
+	configuration := voPostgres.NewPostgresConfigurationFromEnv()
+	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := int64(1)
@@ -139,7 +133,7 @@ func TestGetByIDSuccess(t *testing.T) {
 	// And a mocked transaction
 	dbMocked.ExpectBegin()
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
@@ -152,7 +146,7 @@ func TestGetByIDSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	dbBaseMocked.On("Query", tx, "SELECT id, name, email FROM users WHERE id = $1", []interface{}{ID}).Return(rows, nil)
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByID is called.
 	user, err := userRepo.GetByID(ID)
 	// Then the error returned should be nil.
@@ -166,8 +160,8 @@ func TestGetByIDSuccess(t *testing.T) {
 // TestGetByIDErrEmptyResponse results in an error when the user is not found.
 func TestGetByIDErrEmptyResponse(t *testing.T) {
 	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
-	dbBase := voPostgres.NewBasePostgresDatabase()
+	configuration := voPostgres.NewPostgresConfigurationFromEnv()
+	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid user ID.
 	ID := int64(1)
@@ -177,7 +171,7 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 	// And a mocked transaction
 	dbMocked.ExpectBegin()
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
@@ -190,7 +184,7 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 	assert.Nil(t, err)
 	dbBaseMocked.On("Query", tx, "SELECT id, name, email FROM users WHERE id = $1", []interface{}{ID}).Return(rows, nil)
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByID is called.
 	_, err = userRepo.GetByID(ID)
 	// Then the error returned should be ErrEmpty.
@@ -200,15 +194,13 @@ func TestGetByIDErrEmptyResponse(t *testing.T) {
 
 // TestGetByEmailErrorOpeningDatabase results in an error when the database cannot be opened.
 func TestGetByEmailErrorOpeningDatabase(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(nil, errors.New("error opening database"))
+	dbBaseMocked.On("Open").Return(nil, errors.New("error opening database"))
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByEmail is called.
 	_, err := userRepo.GetByEmail(email)
 	// Then the error returned should be ErrOpeningDatabase.
@@ -218,8 +210,6 @@ func TestGetByEmailErrorOpeningDatabase(t *testing.T) {
 
 // TestGetByEmailErrorBeginningTransaction results in an error when the transaction cannot be started.
 func TestGetByEmailErrorBeginningTransaction(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
@@ -227,13 +217,13 @@ func TestGetByEmailErrorBeginningTransaction(t *testing.T) {
 	db, _, _ := sqlmock.New()
 	defer db.Close()
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	dbBaseMocked.On("BeginTx", db).Return(nil, errors.New("error beginning transaction"))
 	// And a mocked response when calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByEmail is called.
 	_, err := userRepo.GetByEmail(email)
 	// Then the error returned should be ErrBeginningTransaction.
@@ -243,18 +233,16 @@ func TestGetByEmailErrorBeginningTransaction(t *testing.T) {
 
 // TestGetByEmailErrorQuerying results in an error when the query cannot be executed.
 func TestGetByEmailErrorQuerying(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBase)
+	userRepo := postgres.NewPostgresUserRepository(dbBase)
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	defer db.Close()
 	// And a mocked response when calling Open.
-	dbBase.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBase.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBase.On("BeginTx", db).Return(tx, nil)
@@ -272,8 +260,8 @@ func TestGetByEmailErrorQuerying(t *testing.T) {
 // TestGetByEmailErrorScanning results in an error when the query cannot be scanned.
 func TestGetByEmailErrorScanning(t *testing.T) {
 	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
-	dbBase := voPostgres.NewBasePostgresDatabase()
+	configuration := voPostgres.NewPostgresConfigurationFromEnv()
+	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
@@ -283,7 +271,7 @@ func TestGetByEmailErrorScanning(t *testing.T) {
 	// And a mocked transaction
 	dbMocked.ExpectBegin()
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
@@ -296,7 +284,7 @@ func TestGetByEmailErrorScanning(t *testing.T) {
 	assert.Nil(t, err)
 	dbBaseMocked.On("Query", tx, "SELECT id, name, email FROM users WHERE email = $1", []interface{}{email}).Return(rows, nil)
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByEmail is called.
 	_, err = userRepo.GetByEmail(email)
 	// Then the error returned should be ErrScanningUser.
@@ -307,8 +295,8 @@ func TestGetByEmailErrorScanning(t *testing.T) {
 // TestGetByEmailSuccess results in a user when the query is successful.
 func TestGetByEmailSuccess(t *testing.T) {
 	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
-	dbBase := voPostgres.NewBasePostgresDatabase()
+	configuration := voPostgres.NewPostgresConfigurationFromEnv()
+	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.doe@amazingemail.com"
@@ -318,7 +306,7 @@ func TestGetByEmailSuccess(t *testing.T) {
 	// And a mocked transaction
 	dbMocked.ExpectBegin()
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
@@ -331,7 +319,7 @@ func TestGetByEmailSuccess(t *testing.T) {
 	assert.Nil(t, err)
 	dbBaseMocked.On("Query", tx, "SELECT id, name, email FROM users WHERE email = $1", []interface{}{email}).Return(rows, nil)
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByEmail is called.
 	user, err := userRepo.GetByEmail(email)
 	// Then the error returned should be nil.
@@ -346,8 +334,8 @@ func TestGetByEmailSuccess(t *testing.T) {
 // TestGetByEmailErrEmptyResponse results in an error when the email is empty.
 func TestGetByEmailErrEmptyResponse(t *testing.T) {
 	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
-	dbBase := voPostgres.NewBasePostgresDatabase()
+	configuration := voPostgres.NewPostgresConfigurationFromEnv()
+	dbBase := voPostgres.NewBasePostgresDatabase(configuration)
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid email.
 	email := "john.deo@amazingemail.com"
@@ -357,7 +345,7 @@ func TestGetByEmailErrEmptyResponse(t *testing.T) {
 	// And a mocked transaction
 	dbMocked.ExpectBegin()
 	// And a mocked response when calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response when calling BeginTx.
 	tx, _ := db.BeginTx(context.Background(), nil)
 	dbBaseMocked.On("BeginTx", db).Return(tx, nil)
@@ -370,7 +358,7 @@ func TestGetByEmailErrEmptyResponse(t *testing.T) {
 	assert.Nil(t, err)
 	dbBaseMocked.On("Query", tx, "SELECT id, name, email FROM users WHERE email = $1", []interface{}{email}).Return(rows, nil)
 	// And a valid user repository.
-	userRepo, _ := postgres.NewPostgresUserRepository(configuration, dbBaseMocked)
+	userRepo := postgres.NewPostgresUserRepository(dbBaseMocked)
 	// When GetByEmail is called.
 	_, err = userRepo.GetByEmail(email)
 	// Then the error returned should be ErrEmpty.

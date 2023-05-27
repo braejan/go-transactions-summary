@@ -6,18 +6,22 @@ import (
 )
 
 // basePostgresDatabase is the base implementation of PostgresDatabase interface.
-type basePostgresDatabase struct{}
+type basePostgresDatabase struct {
+	postgresConfig *PostgresConfiguration
+}
 
 // NewBasePostgresDatabase creates a new instance of PostgresDatabase interface implementation.
-func NewBasePostgresDatabase() PostgresDatabase {
-	return &basePostgresDatabase{}
+func NewBasePostgresDatabase(postgresConfig *PostgresConfiguration) PostgresDatabase {
+	return &basePostgresDatabase{
+		postgresConfig: postgresConfig,
+	}
 }
 
 // PostgresDatabase interface implementation.
 
 // Open opens a new database connection.
-func (postgresRepo *basePostgresDatabase) Open(dataSourceName string) (db *sql.DB, err error) {
-	db, err = sql.Open("postgres", dataSourceName)
+func (postgresRepo *basePostgresDatabase) Open() (db *sql.DB, err error) {
+	db, err = sql.Open("postgres", postgresRepo.postgresConfig.GetDataSourceName())
 	return
 }
 

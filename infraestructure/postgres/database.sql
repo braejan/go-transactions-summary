@@ -14,7 +14,7 @@ COMMENT ON TABLE users IS 'Tabla de usuario';
 COMMENT ON COLUMN users.id IS 'Nombre del usuario';
 COMMENT ON COLUMN users.id IS 'Dirección de correo electrónico del usuario';
 
-
+DROP TABLE IF EXISTS accounts;
 CREATE TABLE accounts (
     id      UUID PRIMARY KEY,
     balance BIGINT,
@@ -33,13 +33,14 @@ FOREIGN KEY (userid)
 REFERENCES users (id)
 ON DELETE CASCADE;
 
+DROP TABLE IF EXISTS transactions;
 CREATE TABLE transactions (
     id         UUID PRIMARY KEY,
     accountid UUID NOT NULL,
     amount     FLOAT NOT NULL,
     operation  VARCHAR(255) NOT NULL,
     date       TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     origin     VARCHAR(255) NOT NULL
 );
 

@@ -34,49 +34,49 @@ func getTestUsers() (users []*userEntity.User) {
 	return
 }
 
-// TestNewLocalFileUseCasesWithNilUserUseCases tests the NewLocalFileUseCases function with a nil userUseCases parameter.
-func TestNewLocalFileUseCasesWithNilUserUseCases(t *testing.T) {
+// TestNewFileUseCasesWithNilUserUseCases tests the NewFileUseCases function with a nil userUseCases parameter.
+func TestNewFileUseCasesWithNilUserUseCases(t *testing.T) {
 	// Given a valid accountUseCases
 	accountUseCases := accMockUseCases.NewMockAccountUseCases()
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
-	// When NewLocalFileUseCases is called with a nil userUseCases
-	useCases, err := usecases.NewLocalFileUseCases(nil, accountUseCases, transactionUseCases)
+	// When NewFileUseCases is called with a nil userUseCases
+	useCases, err := usecases.NewFileUseCases(nil, accountUseCases, transactionUseCases)
 	// Then the returned useCases should be nil
 	assert.Nil(t, useCases)
 	// And the returned error should be ErrNilUserUseCases
 	assert.Equal(t, voUser.ErrNilUserUseCases, err)
 }
 
-// TestNewLocalFileUseCasesWithNilAccountUseCases tests the NewLocalFileUseCases function with a nil accountUseCases parameter.
-func TestNewLocalFileUseCasesWithNilAccountUseCases(t *testing.T) {
+// TestNewFileUseCasesWithNilAccountUseCases tests the NewFileUseCases function with a nil accountUseCases parameter.
+func TestNewFileUseCasesWithNilAccountUseCases(t *testing.T) {
 	// Given a valid userUseCases
 	userUseCases := userMockUseCases.NewMockUserUseCases()
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
-	// When NewLocalFileUseCases is called with a nil accountUseCases
-	useCases, err := usecases.NewLocalFileUseCases(userUseCases, nil, transactionUseCases)
+	// When NewFileUseCases is called with a nil accountUseCases
+	useCases, err := usecases.NewFileUseCases(userUseCases, nil, transactionUseCases)
 	// Then the returned useCases should be nil
 	assert.Nil(t, useCases)
 	// And the returned error should be ErrNilAccountUseCases
 	assert.Equal(t, voAccount.ErrNilAccountUseCases, err)
 }
 
-// TestNewLocalFileUseCasesWithNilTransactionUseCases tests the NewLocalFileUseCases function with a nil transactionUseCases parameter.
-func TestNewLocalFileUseCasesWithNilTransactionUseCases(t *testing.T) {
+// TestNewFileUseCasesWithNilTransactionUseCases tests the NewFileUseCases function with a nil transactionUseCases parameter.
+func TestNewFileUseCasesWithNilTransactionUseCases(t *testing.T) {
 	// Given a valid userUseCases
 	userUseCases := userMockUseCases.NewMockUserUseCases()
 	// And a valid accountUseCases
 	accountUseCases := accMockUseCases.NewMockAccountUseCases()
-	// When NewLocalFileUseCases is called with a nil transactionUseCases
-	useCases, err := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, nil)
+	// When NewFileUseCases is called with a nil transactionUseCases
+	useCases, err := usecases.NewFileUseCases(userUseCases, accountUseCases, nil)
 	// Then the returned useCases should be nil
 	assert.Nil(t, useCases)
 	// And the returned error should be ErrNilTransactionUseCases
 	assert.Equal(t, voTransaction.ErrNilTransactionUseCases, err)
 }
 
-// TestNewLocalUseCasesSuccess tests the NewLocalFileUseCases function with valid parameters.
+// TestNewLocalUseCasesSuccess tests the NewFileUseCases function with valid parameters.
 func TestNewLocalUseCasesSuccess(t *testing.T) {
 	// Given a valid userUseCases
 	userUseCases := userMockUseCases.NewMockUserUseCases()
@@ -84,8 +84,8 @@ func TestNewLocalUseCasesSuccess(t *testing.T) {
 	accountUseCases := accMockUseCases.NewMockAccountUseCases()
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
-	// When NewLocalFileUseCases is called with valid parameters
-	useCases, err := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	// When NewFileUseCases is called with valid parameters
+	useCases, err := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// Then the returned useCases should not be nil
 	assert.NotNil(t, useCases)
 	// And the returned error should be nil
@@ -101,7 +101,7 @@ func TestReadAndProcessFileWithEmtyFile(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// When ReadAndProcessFile is called with an empty file entity
 	err := useCases.ReadAndProcessFile(entity.TxFile{}, false)
 	// Then the returned error should be ErrFilePathIsEmpty
@@ -117,7 +117,7 @@ func TestReadAndProcessFileWithNonExistingFile(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// When ReadAndProcessFile is called with a non existing file entity
 	err := useCases.ReadAndProcessFile(entity.TxFile{Path: "non-existing-file"}, false)
 	// Then the returned error should be ErrFileCouldNotBeOpened
@@ -133,7 +133,7 @@ func TestReadAndProcessFileWithEmptyFile(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_empty.csv")
@@ -154,7 +154,7 @@ func TestReadAndProcessFileWithInvalidColumns(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_invalid_columns.csv")
@@ -175,7 +175,7 @@ func TestReadAndProcessFileWithInvalidID(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_invalid_id.csv")
@@ -196,7 +196,7 @@ func TestReadAndProcessFileWithInvalidDate(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_invalid_date.csv")
@@ -217,7 +217,7 @@ func TestReadAndProcessFileWithInvalidAmount(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_invalid_amount.csv")
@@ -239,7 +239,7 @@ func TestReadAndProcessErrGettingUserByID(t *testing.T) {
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	userUseCases.On("GetByID", mock.Anything).Return(nil, errors.New("error getting user by id"))
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_simple.csv")
@@ -263,7 +263,7 @@ func TestReadAndProcessErrCreatingUser(t *testing.T) {
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
@@ -293,7 +293,7 @@ func TestReadAndProcessErrCheckAccountByUserID_GetByUserID(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_simple.csv")
@@ -322,7 +322,7 @@ func TestReadAndProcessErrCheckAccountByUserID_Create(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_simple.csv")
@@ -351,7 +351,7 @@ func TestReadAndProcessErrCheckAccountByUserID_2GetByUserID(t *testing.T) {
 	// And a valid transactionUseCases
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_simple.csv")
@@ -382,7 +382,7 @@ func TestReadAndProcessErrCreatingTransactions(t *testing.T) {
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	transactionUseCases.On("Create", mock.Anything).Return(errors.New("error creating transaction"))
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_simple.csv")
@@ -413,7 +413,7 @@ func TestReadAndProcessSucess(t *testing.T) {
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	transactionUseCases.On("Create", mock.Anything).Return(nil)
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_simple.csv")
@@ -443,7 +443,7 @@ func TestReadAndProcessErrFileLastRecord(t *testing.T) {
 	transactionUseCases := txMockUseCases.NewMockTransactionUseCases()
 	transactionUseCases.On("Create", mock.Anything).Return(nil)
 	// And a valid useCases
-	useCases, _ := usecases.NewLocalFileUseCases(userUseCases, accountUseCases, transactionUseCases)
+	useCases, _ := usecases.NewFileUseCases(userUseCases, accountUseCases, transactionUseCases)
 	// And a valid file entity
 	currentDir, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s", currentDir, "test/files/txns_invalid_last_record.csv")

@@ -42,7 +42,7 @@ func TestNewPostgresConfigurationSuccess(t *testing.T) {
 // TestGetDefaultPostgresConfigurationSuccess tests the GetDefaultPostgresConfiguration function succeeds.
 func TestGetDefaultPostgresConfigurationSuccess(t *testing.T) {
 	// When call GetDefaultPostgresConfiguration
-	configuration := postgres.GetDefaultPostgresConfiguration()
+	configuration := postgres.NewDefaultPostgresConfiguration()
 	log.Printf("datasource: %s\n", configuration.GetDataSourceName())
 	// Then return a PostgresConfiguration
 	assert.Equal(t, "localhost", configuration.Host)
@@ -72,7 +72,7 @@ func TestGetPostgresConfigurationFromEnvSuccess(t *testing.T) {
 	err = os.Setenv("POSTGRES_DATABASE", "stori-challenge-db")
 	assert.NoError(t, err)
 	// When call GetPostgresConfigurationFromEnv
-	configuration := postgres.GetPostgresConfigurationFromEnv()
+	configuration := postgres.NewPostgresConfigurationFromEnv()
 	// Then return a PostgresConfiguration
 	assert.Equal(t, "localhost", configuration.Host)
 	assert.Equal(t, 1234, configuration.Port)
@@ -98,7 +98,7 @@ func TestGetPostgresConfigurationFromEnvWithEmptyHostSuccess(t *testing.T) {
 	err = os.Setenv("POSTGRES_DATABASE", "other-db")
 	assert.NoError(t, err)
 	// When call GetPostgresConfigurationFromEnv
-	configuration := postgres.GetPostgresConfigurationFromEnv()
+	configuration := postgres.NewPostgresConfigurationFromEnv()
 	// Then return a PostgresConfiguration
 	assert.Equal(t, "localhost", configuration.Host)
 	assert.Equal(t, 5432, configuration.Port)
@@ -124,7 +124,7 @@ func TestGetPostgresConfigurationFromEnvWithEmptyPortSuccess(t *testing.T) {
 	err = os.Setenv("POSTGRES_DATABASE", "other-db")
 	assert.NoError(t, err)
 	// When call GetPostgresConfigurationFromEnv
-	configuration := postgres.GetPostgresConfigurationFromEnv()
+	configuration := postgres.NewPostgresConfigurationFromEnv()
 	// Then return a PostgresConfiguration
 	assert.Equal(t, "localhost", configuration.Host)
 	assert.Equal(t, 5432, configuration.Port)
@@ -136,7 +136,7 @@ func TestGetPostgresConfigurationFromEnvWithEmptyPortSuccess(t *testing.T) {
 // TestGetDataSoureNameSuccess tests the GetDataSourceName function succeeds.
 func TestGetDataSoureNameSuccess(t *testing.T) {
 	// Given a PostgresConfiguration
-	configuration := postgres.GetDefaultPostgresConfiguration()
+	configuration := postgres.NewDefaultPostgresConfiguration()
 	// When call GetDataSourceName
 	dataSourceName := configuration.GetDataSourceName()
 	// Then return a data source name

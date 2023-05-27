@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"os"
 	"regexp"
 	"strconv"
@@ -30,8 +31,8 @@ type localFileUseCases struct {
 	transactionUseCases txUsecases.TransactionUseCases
 }
 
-// NewLocalFileUseCases returns a new localFileUseCases instance.
-func NewLocalFileUseCases(
+// NewFileUseCases returns a new localFileUseCases instance.
+func NewFileUseCases(
 	userUseCases userUsecases.UserUseCases,
 	accountUseCases acUsecases.AccountUseCases,
 	transactionUseCases txUsecases.TransactionUseCases,
@@ -90,6 +91,37 @@ func (useCases *localFileUseCases) CheckFile(file fileEntity.TxFile, isS3 bool) 
 
 }
 
+// ProcessFile processes the file.
+func (useCases *localFileUseCases) ProcessFile(file fileEntity.TxFile, osFile *os.File) (err error) {
+	// Create a new reader.
+	reader := csv.NewReader(osFile)
+	// Read the file registers.
+	log.Println("Reading file:", file.Name)
+	txsAux, err := useCases.readFileRegisters(reader, file.Name)
+	if err != nil {
+		return
+	}
+	txs := txUtil.ArrayTxMemoryToArrayValue(txsAux)
+	err = useCases.createTransactions(txs)
+	return
+}
+
+// ProcessMultipartFile processes the file.
+func (useCases *localFileUseCases) ProcessMultipartFile(txFile fileEntity.TxFile, file multipart.File) (err error) {
+	log.Println("Processing multipart file:", txFile.Name)
+	// Create a new reader.
+	reader := csv.NewReader(file)
+	// Read the file registers.
+	log.Println("Reading file:", txFile.Name)
+	txsAux, err := useCases.readFileRegisters(reader, txFile.Name)
+	if err != nil {
+		return
+	}
+	txs := txUtil.ArrayTxMemoryToArrayValue(txsAux)
+	err = useCases.createTransactions(txs)
+	return
+}
+
 func (useCases *localFileUseCases) openOSFile(path string) (file *os.File, err error) {
 	// Validate the path.
 	if path == "" {
@@ -119,6 +151,7 @@ func (useCases *localFileUseCases) readFileRegisters(reader *csv.Reader, fileNam
 	}
 	lineCounter := 1
 	for {
+		log.Println("Reading line:", lineCounter)
 		lineCounter++
 		record, errRead := reader.Read()
 		if errRead != nil && errRead == io.EOF {
@@ -214,6 +247,7 @@ func (useCases *localFileUseCases) checkUser(ID int64) (err error) {
 }
 
 func (useCases *localFileUseCases) checkAccountByUserID(userID int64) (account *acEntity.Account, err error) {
+	log.Println("Checking account for user:", userID)
 	// Check if the account exists.
 	accAux, err := useCases.accountUseCases.GetByUserID(userID)
 	if err != nil && err == voAccount.ErrAccountNotFound {

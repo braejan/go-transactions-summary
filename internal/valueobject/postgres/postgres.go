@@ -7,7 +7,7 @@ import (
 )
 
 type PostgresDatabase interface {
-	Open(dataSourceName string) (db *sql.DB, err error)
+	Open() (db *sql.DB, err error)
 	Close(db *sql.DB) (err error)
 	BeginTx(db *sql.DB) (tx *sql.Tx, err error)
 	Commit(tx *sql.Tx) (err error)
@@ -35,7 +35,7 @@ func NewPostgresConfiguration(host string, port int, user string, password strin
 	return
 }
 
-func GetDefaultPostgresConfiguration() (configuration *PostgresConfiguration) {
+func NewDefaultPostgresConfiguration() (configuration *PostgresConfiguration) {
 	configuration = &PostgresConfiguration{
 		Host:     "localhost",
 		Port:     5432,
@@ -46,16 +46,16 @@ func GetDefaultPostgresConfiguration() (configuration *PostgresConfiguration) {
 	return
 }
 
-func GetPostgresConfigurationFromEnv() (configuration *PostgresConfiguration) {
+func NewPostgresConfigurationFromEnv() (configuration *PostgresConfiguration) {
 	host := os.Getenv("POSTGRES_HOST")
 	if host == "" {
 		// return default configuration
-		return GetDefaultPostgresConfiguration()
+		return NewDefaultPostgresConfiguration()
 	}
 	port, err := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
 	if err != nil {
 		// return default configuration
-		return GetDefaultPostgresConfiguration()
+		return NewDefaultPostgresConfiguration()
 	}
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")

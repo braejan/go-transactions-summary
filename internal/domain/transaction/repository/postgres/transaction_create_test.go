@@ -16,11 +16,9 @@ import (
 
 // TestCreateWithInvalidTransaction tests the error returned when the transaction is invalid.
 func TestCreateWithInvalidTransaction(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBase := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	transactionRepo, _ := postgres.NewPostgresTransactionRepository(configuration, dbBase)
+	transactionRepo := postgres.NewPostgresTransactionRepository(dbBase)
 	// When creating a account .
 	err := transactionRepo.Create(nil)
 	// Then the error returned is ErrBeginningTransaction.
@@ -30,13 +28,11 @@ func TestCreateWithInvalidTransaction(t *testing.T) {
 
 // TestCreateErrOpeningDatabase tests the error returned when the database cannot be opened.
 func TestCreateErrOpeningDatabase(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	transactionRepo, _ := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a mocked response calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(nil, voPostgres.ErrOpeningDatabase)
+	dbBaseMocked.On("Open").Return(nil, voPostgres.ErrOpeningDatabase)
 	// When creating a account .
 	err := transactionRepo.Create(&entity.Transaction{})
 	// Then the error returned is ErrOpeningDatabase.
@@ -46,15 +42,13 @@ func TestCreateErrOpeningDatabase(t *testing.T) {
 
 // TestCreateErrBeginningTransaction tests the error returned when the transaction cannot be started.
 func TestCreateErrBeginningTransaction(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	transactionRepo, _ := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 	// And a mocked response calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response calling Begin.
@@ -68,18 +62,16 @@ func TestCreateErrBeginningTransaction(t *testing.T) {
 
 // TestCreateErrExecutingQuery tests the error returned when the query cannot be executed.
 func TestCreateErrExecutingQuery(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	transactionRepo, _ := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a valid origin.
 	origin := "txns.csv"
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 
 	// And a mocked response calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response calling BeginTx.
@@ -94,13 +86,14 @@ func TestCreateErrExecutingQuery(t *testing.T) {
 	dbBaseMocked.On(
 		"Exec",
 		dbTx,
-		"INSERT INTO transactions (id, accountid, amount, date, origin) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO transactions (id, accountid, amount, date, origin, operation) VALUES ($1, $2, $3, $4, $5, $6)",
 		[]interface{}{
 			tx.ID,
 			tx.AccountID,
 			tx.Amount,
 			tx.Date,
 			tx.Origin,
+			tx.Operation,
 		}).Return(nil, voPostgres.ErrExec)
 	// When creating a account .
 	err = transactionRepo.Create(tx)
@@ -111,18 +104,16 @@ func TestCreateErrExecutingQuery(t *testing.T) {
 
 // TestCreateErrCommittingTransaction tests the error returned when the transaction cannot be committed.
 func TestCreateErrCommittingTransaction(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	transactionRepo, _ := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a valid origin.
 	origin := "txns.csv"
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 
 	// And a mocked response calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response calling BeginTx.
@@ -137,13 +128,14 @@ func TestCreateErrCommittingTransaction(t *testing.T) {
 	dbBaseMocked.On(
 		"Exec",
 		dbTx,
-		"INSERT INTO transactions (id, accountid, amount, date, origin) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO transactions (id, accountid, amount, date, origin, operation) VALUES ($1, $2, $3, $4, $5, $6)",
 		[]interface{}{
 			tx.ID,
 			tx.AccountID,
 			tx.Amount,
 			tx.Date,
 			tx.Origin,
+			tx.Operation,
 		}).Return(nil, nil)
 	// And a mocked response calling Commit.
 	dbBaseMocked.On("Commit", dbTx).Return(voPostgres.ErrCommittingTransaction)
@@ -156,18 +148,16 @@ func TestCreateErrCommittingTransaction(t *testing.T) {
 
 // TestCreateSuccess tests the success when creating a transaction.
 func TestCreateSuccess(t *testing.T) {
-	// Given a valid configuration.
-	configuration := voPostgres.GetPostgresConfigurationFromEnv()
 	dbBaseMocked := mock.NewMockBasePostgresDatabase()
 	// And a valid account repository.
-	transactionRepo, _ := postgres.NewPostgresTransactionRepository(configuration, dbBaseMocked)
+	transactionRepo := postgres.NewPostgresTransactionRepository(dbBaseMocked)
 	// And a valid origin.
 	origin := "txns.csv"
 	// And a mocked database.
 	db, _, _ := sqlmock.New()
 
 	// And a mocked response calling Open.
-	dbBaseMocked.On("Open", configuration.GetDataSourceName()).Return(db, nil)
+	dbBaseMocked.On("Open").Return(db, nil)
 	// And a mocked response calling Close.
 	dbBaseMocked.On("Close", db).Return(nil)
 	// And a mocked response calling BeginTx.
@@ -182,13 +172,14 @@ func TestCreateSuccess(t *testing.T) {
 	dbBaseMocked.On(
 		"Exec",
 		dbTx,
-		"INSERT INTO transactions (id, accountid, amount, date, origin) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO transactions (id, accountid, amount, date, origin, operation) VALUES ($1, $2, $3, $4, $5, $6)",
 		[]interface{}{
 			tx.ID,
 			tx.AccountID,
 			tx.Amount,
 			tx.Date,
 			tx.Origin,
+			tx.Operation,
 		}).Return(nil, nil)
 	// And a mocked response calling Commit.
 	dbBaseMocked.On("Commit", dbTx).Return(nil)

@@ -17,12 +17,12 @@ func NewMockBasePostgresDatabase() *mockBasePostgresDatabase {
 }
 
 // Open provides a mock function with given fields: dataSourceName
-func (_m *mockBasePostgresDatabase) Open(dataSourceName string) (db *sql.DB, err error) {
-	ret := _m.Called(dataSourceName)
+func (_m *mockBasePostgresDatabase) Open() (db *sql.DB, err error) {
+	ret := _m.Called()
 
 	var r0 *sql.DB
-	if rf, ok := ret.Get(0).(func(string) *sql.DB); ok {
-		r0 = rf(dataSourceName)
+	if rf, ok := ret.Get(0).(func() *sql.DB); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*sql.DB)
@@ -30,8 +30,8 @@ func (_m *mockBasePostgresDatabase) Open(dataSourceName string) (db *sql.DB, err
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(dataSourceName)
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

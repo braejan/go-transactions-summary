@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"log"
+
 	"github.com/braejan/go-transactions-summary/internal/domain/account/entity"
 	"github.com/braejan/go-transactions-summary/internal/domain/account/repository"
 	"github.com/braejan/go-transactions-summary/internal/valueobject/account"
@@ -12,22 +14,14 @@ import (
 // postgresAccountRepository struct implements the AccountRepository interface using
 // a PostgreSQL database.
 type postgresAccountRepository struct {
-	configuration *postgres.PostgresConfiguration
-	baseDB        postgres.PostgresDatabase
+	baseDB postgres.PostgresDatabase
 	repository.AccountRepository
 }
 
 // NewPostgresAccountRepository creates a new instance of postgresAccountRepository.
-func NewPostgresAccountRepository(
-	configuration *postgres.PostgresConfiguration,
-	baseDB postgres.PostgresDatabase) (accountRepo repository.AccountRepository, err error) {
-	if configuration == nil {
-		err = postgres.ErrNilConfiguration
-		return
-	}
+func NewPostgresAccountRepository(baseDB postgres.PostgresDatabase) (accountRepo repository.AccountRepository) {
 	accountRepo = &postgresAccountRepository{
-		configuration: configuration,
-		baseDB:        baseDB,
+		baseDB: baseDB,
 	}
 	return
 }
@@ -38,7 +32,7 @@ const (
 )
 
 func (postgresRepo *postgresAccountRepository) GetByID(ID uuid.UUID) (acc *entity.Account, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -74,7 +68,7 @@ const (
 )
 
 func (postgresRepo *postgresAccountRepository) GetByUserID(userID int64) (acc *entity.Account, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -97,10 +91,12 @@ func (postgresRepo *postgresAccountRepository) GetByUserID(userID int64) (acc *e
 			err = account.ErrScanningAccountByUserID
 			return
 		}
-	}
-	if acc.UserID == 0 {
+	} else {
+		acc = nil
 		err = account.ErrAccountNotFound
+		return
 	}
+	log.Println("Returning account:", acc)
 	return
 }
 
@@ -114,7 +110,7 @@ func (postgresRepo *postgresAccountRepository) Create(acc *entity.Account) (err 
 		err = account.ErrNilAccount
 		return
 	}
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -145,7 +141,7 @@ func (postgresRepo *postgresAccountRepository) Update(acc *entity.Account) (err 
 		err = account.ErrNilAccount
 		return
 	}
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return

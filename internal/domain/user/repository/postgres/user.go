@@ -13,20 +13,14 @@ import (
 // postgresUserRepository struct implements the UserRepository interface using
 // a PostgreSQL database.
 type postgresUserRepository struct {
-	configuration *postgres.PostgresConfiguration
-	baseDB        postgres.PostgresDatabase
+	baseDB postgres.PostgresDatabase
 	repository.UserRepository
 }
 
 // NewPostgresUserRepository creates a new instance of postgresUserRepository.
-func NewPostgresUserRepository(configuration *postgres.PostgresConfiguration, baseDB postgres.PostgresDatabase) (userRepo repository.UserRepository, err error) {
-	if configuration == nil {
-		err = postgres.ErrNilConfiguration
-		return
-	}
+func NewPostgresUserRepository(baseDB postgres.PostgresDatabase) (userRepo repository.UserRepository) {
 	userRepo = &postgresUserRepository{
-		configuration: configuration,
-		baseDB:        baseDB,
+		baseDB: baseDB,
 	}
 	return
 }
@@ -37,7 +31,7 @@ const (
 )
 
 func (postgresRepo *postgresUserRepository) GetByID(ID int64) (user *entity.User, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -77,7 +71,7 @@ const (
 )
 
 func (postgresRepo *postgresUserRepository) GetByEmail(email string) (user *entity.User, err error) {
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -119,7 +113,7 @@ func (postgresRepo *postgresUserRepository) Create(user *entity.User) (err error
 		err = userErrors.ErrNilUser
 		return
 	}
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
@@ -150,7 +144,7 @@ func (postgresRepo *postgresUserRepository) Update(user *entity.User) (err error
 		err = userErrors.ErrNilUser
 		return
 	}
-	db, err := postgresRepo.baseDB.Open(postgresRepo.configuration.GetDataSourceName())
+	db, err := postgresRepo.baseDB.Open()
 	if err != nil {
 		err = postgres.ErrOpeningDatabase
 		return
