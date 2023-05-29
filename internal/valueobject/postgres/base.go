@@ -24,7 +24,7 @@ func NewBasePostgresDatabase(postgresConfig *PostgresConfiguration) PostgresData
 
 // Open opens a new database connection.
 func (postgresRepo *basePostgresDatabase) Open() (db *sql.DB, err error) {
-	log.Println("Connecting to database...")
+	log.Println("Connecting to database...", postgresRepo.postgresConfig.GetDataSourceName())
 	db, err = sql.Open("postgres", postgresRepo.postgresConfig.GetDataSourceName())
 	return
 }
@@ -51,6 +51,9 @@ func (postgresRepo *basePostgresDatabase) Commit(tx *sql.Tx) (err error) {
 
 // Rollback rollbacks a transaction.
 func (postgresRepo *basePostgresDatabase) Rollback(tx *sql.Tx) (err error) {
+	if tx == nil {
+		return
+	}
 	err = tx.Rollback()
 	return
 }
