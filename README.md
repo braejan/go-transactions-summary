@@ -1,7 +1,7 @@
 # Transaction Summary - A Golang DDD implementation.
 
 ## Historia
-En un mundo de una especie conciente de sí misma ha decidido crear un sistema financiero global en el cuál para ser parte del sistema financiero sólo debe proporcionar su número de identifiación única (es un Integer 😉). Las transacciones son simples. Si el ciudadano necesita hacer un pago, se registra en un archivo con un signo positivo (➕) de lo contrario, será con un sigo negativo (➖). Cada registro tiene una fecha en formado MM/AA (el número del mes y los dos últimos digitos del año).
+En un mundo de una especie consciente de sí misma ha decidido crear un sistema financiero global en el cuál para ser parte del sistema financiero sólo debe proporcionar su número de identifiación única (es un Integer 😉). Las transacciones son simples. Si el ciudadano necesita hacer un pago, se registra en un archivo con un signo positivo (➕) de lo contrario, será con un sigo negativo (➖). Cada registro tiene una fecha en formado MM/AA (el número del mes y los dos últimos digitos del año).
 
 ## Objetivo
 Reunir la información de las compras y ventas realizadas y almacenadas en un archivo de formato texto plano (CSV) y enviar un correo electrónico al usuario con un resumen de sus transacciones.
