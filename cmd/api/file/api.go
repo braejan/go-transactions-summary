@@ -58,7 +58,7 @@ func main() {
 	fileHandler.RegisterRoutes(router)
 	// Create the server
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         "0.0.0.0:8080",
 		Handler:      router,
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,
@@ -66,7 +66,7 @@ func main() {
 	// Start server
 	// start server
 	go func() {
-		log.Printf("🆙 starting server 🙎 file on port %s", server.Addr[1:])
+		log.Printf("🆙 starting server 🙎 file on %s", server.Addr)
 		err := server.ListenAndServe()
 		if err != nil {
 			log.Fatal(err)
