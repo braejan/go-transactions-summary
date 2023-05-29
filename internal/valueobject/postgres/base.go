@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -24,16 +23,13 @@ func NewBasePostgresDatabase(postgresConfig *PostgresConfiguration) PostgresData
 
 // Open opens a new database connection.
 func (postgresRepo *basePostgresDatabase) Open() (db *sql.DB, err error) {
-	log.Println("Connecting to database...")
 	db, err = sql.Open("postgres", postgresRepo.postgresConfig.GetDataSourceName())
 	return
 }
 
 // Close closes a database connection.
 func (postgresRepo *basePostgresDatabase) Close(db *sql.DB) (err error) {
-	log.Println("DB previous to be closed")
 	err = db.Close()
-	log.Println("DB closed")
 	return
 }
 
@@ -51,6 +47,9 @@ func (postgresRepo *basePostgresDatabase) Commit(tx *sql.Tx) (err error) {
 
 // Rollback rollbacks a transaction.
 func (postgresRepo *basePostgresDatabase) Rollback(tx *sql.Tx) (err error) {
+	if tx == nil {
+		return
+	}
 	err = tx.Rollback()
 	return
 }

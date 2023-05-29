@@ -93,6 +93,7 @@ func (useCases *localFileUseCases) CheckFile(file fileEntity.TxFile, isS3 bool) 
 
 // ProcessFile processes the file.
 func (useCases *localFileUseCases) ProcessFile(file fileEntity.TxFile, osFile *os.File) (err error) {
+	log.Println("Processing file:", file.Name)
 	// Create a new reader.
 	reader := csv.NewReader(osFile)
 	// Read the file registers.

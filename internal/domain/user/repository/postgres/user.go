@@ -38,6 +38,7 @@ func (postgresRepo *postgresUserRepository) GetByID(ID int64) (user *entity.User
 	}
 	defer postgresRepo.baseDB.Close(db)
 	tx, err := postgresRepo.baseDB.BeginTx(db)
+	log.Println("postgresRepo.baseDB.BeginTx(db)", err)
 	defer postgresRepo.baseDB.Rollback(tx)
 	if err != nil {
 		err = postgres.ErrBeginningTransaction
