@@ -68,9 +68,7 @@ A continuación, se presentan algunas notas adicionales sobre las columnas y tab
 - La columna **operation** en la tabla **transactions** representa la operación realizada en la transacción.
 - La columna **date** en la tabla **transactions** representa la fecha de la transacción.
 - La columna **created_at** en la tabla **transactions** representa la fecha y hora en que se creó la transacción.
-- La columna **origin** en la tabla **transactions
-
-** representa el origen de la transacción.
+- La columna **origin** en la tabla **transactions** representa el origen de la transacción.
 
 ---
 

@@ -64,6 +64,17 @@ Es importante tener en cuenta que ambos parámetros son requeridos:
 
 Recuerda que el servicio `/loadfile` está diseñado para aceptar archivos CSV y realizar el procesamiento correspondiente. Asegúrate de proporcionar un archivo válido en formato CSV para obtener los resultados esperados.
 
+## Pruebas
+
+Para ejecutar las pruebas unitarias, debes ejecutar el siguiente comando:
+```bash
+go test -v ./... -coverprofile=coverage.out
+go tool cover -html=coverage.out -o coverage.html
+```
+Esta ejecución generará en consola el resultado de la ejecución del set de pruebas de todos los archivos *_test.go. Además, generará un archivo coverage.html que puedes abrir en tu navegador para ver el porcentaje de cobertura de las pruebas.
+
+## Deuda técnica.
+El proyecto debe enviar un email con el resumen del resultado, sin embargo queda pendiente su implementación usando un servicio de email cómo AWS SES.
 ## Contribución
 
 Si deseas contribuir a este proyecto, por favor sigue los siguientes pasos:
